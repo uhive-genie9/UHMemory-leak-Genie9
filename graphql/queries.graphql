@@ -1,0 +1,236 @@
+# this is an auto generated file. This will be overwritten
+query CheckNewActions(
+  $base_conv: Int
+  $last_action_id: String
+  $user_id: Int!
+) {
+  checkNewActions(
+    base_conv: $base_conv
+    last_action_id: $last_action_id
+    user_id: $user_id
+  ) {
+    new_actions
+  }
+}
+query GetConversation($conversation_id: Int!, $user_id: Int!) {
+  getConversation(conversation_id: $conversation_id, user_id: $user_id) {
+    conversation_id
+    last_action
+    last_action_id
+    message {
+      conv_type
+      conversation_id
+      local_id
+      m_type
+      message_id
+      status
+      text
+      timestamp
+      url
+      url_domain
+      url_text
+      url_thumb_url
+      url_title
+      user_id
+    }
+    peer_user {
+      name
+      user_id
+    }
+    timestamp
+    unseen_count
+  }
+}
+query GetConversationMessages(
+  $conversation_id: Int!
+  $fetch_count: Int!
+  $start_from: Int
+  $user_id: Int!
+) {
+  getConversationMessages(
+    conversation_id: $conversation_id
+    fetch_count: $fetch_count
+    start_from: $start_from
+    user_id: $user_id
+  ) {
+    conv_type
+    conversation_id
+    local_id
+    m_type
+    message_id
+    status
+    text
+    timestamp
+    url
+    url_domain
+    url_text
+    url_thumb_url
+    url_title
+    user_id
+  }
+}
+query GetUnseenCount($user_id: Int!) {
+  getUnseenCount(user_id: $user_id) {
+    count
+    user_id
+  }
+}
+query GetUserConversations(
+  $fetch_count: Int!
+  $start_from: Int
+  $user_id: Int
+) {
+  getUserConversations(
+    fetch_count: $fetch_count
+    start_from: $start_from
+    user_id: $user_id
+  ) {
+    conversation_id
+    last_action
+    last_action_id
+    message {
+      conv_type
+      conversation_id
+      local_id
+      m_type
+      message_id
+      status
+      text
+      timestamp
+      url
+      url_domain
+      url_text
+      url_thumb_url
+      url_title
+      user_id
+    }
+    peer_user {
+      name
+      user_id
+    }
+    timestamp
+    unseen_count
+  }
+}
+query GetUserConversationsDep(
+  $fetch_count: Int!
+  $start_from: Int
+  $user_id: Int
+) {
+  getUserConversations_dep(
+    fetch_count: $fetch_count
+    start_from: $start_from
+    user_id: $user_id
+  ) {
+    conversation_id
+    receiver_id
+    sender_id
+  }
+}
+query GetUserConversationsV2(
+  $fetch_count: Int!
+  $last_action: Int
+  $user_id: Int
+) {
+  getUserConversations_v2(
+    fetch_count: $fetch_count
+    last_action: $last_action
+    user_id: $user_id
+  ) {
+    conversation_id
+    last_action
+    last_action_id
+    message {
+      conv_type
+      conversation_id
+      local_id
+      m_type
+      message_id
+      status
+      text
+      timestamp
+      url
+      url_domain
+      url_text
+      url_thumb_url
+      url_title
+      user_id
+    }
+    peer_user {
+      name
+      user_id
+    }
+    timestamp
+    unseen_count
+  }
+}
+query GetUserConversationsV3(
+  $base_conv: Int
+  $fetch_count: Int
+  $next_token: String
+  $user_id: Int!
+) {
+  getUserConversations_v3(
+    base_conv: $base_conv
+    fetch_count: $fetch_count
+    next_token: $next_token
+    user_id: $user_id
+  ) {
+    conversations {
+      conversation_id
+      last_action
+      last_action_id
+      message {
+        conv_type
+        conversation_id
+        local_id
+        m_type
+        message_id
+        status
+        text
+        timestamp
+        url
+        url_domain
+        url_text
+        url_thumb_url
+        url_title
+        user_id
+      }
+      peer_user {
+        name
+        user_id
+      }
+      timestamp
+      unseen_count
+    }
+    next_token
+  }
+}
+query GetUserMessages($fetch_count: Int!, $start_from: Int, $user_id: Int!) {
+  getUserMessages(
+    fetch_count: $fetch_count
+    start_from: $start_from
+    user_id: $user_id
+  ) {
+    conv_type
+    conversation_id
+    local_id
+    m_type
+    message_id
+    status
+    text
+    timestamp
+    url
+    url_domain
+    url_text
+    url_thumb_url
+    url_title
+    user_id
+  }
+}
+query GetUserOnlineStatus($user_id: Int!) {
+  getUserOnlineStatus(user_id: $user_id) {
+    is_online
+    last_seen
+  }
+}

@@ -1,0 +1,6 @@
+framework module Pods_NetworkingRetrier {
+  umbrella header "Pods-NetworkingRetrier-umbrella.h"
+
+  export *
+  module * { export * }
+}

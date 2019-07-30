@@ -1,0 +1,56 @@
+PODS:
+  - Alamofire (4.8.2)
+  - AWSAppSync (2.14.0):
+    - AWSCore (~> 2.9.0)
+    - ReachabilitySwift (= 4.3.0)
+    - SQLite.swift (= 0.11.6)
+  - AWSCore (2.9.10)
+  - GRDB.swift (4.1.1):
+    - GRDB.swift/standard (= 4.1.1)
+  - GRDB.swift/standard (4.1.1)
+  - InputBarAccessoryView (4.2.2)
+  - Kingfisher (5.7.0)
+  - MessageKit (3.0.0):
+    - InputBarAccessoryView (~> 4.2.2)
+  - ReachabilitySwift (4.3.0)
+  - SQLite.swift (0.11.6):
+    - SQLite.swift/standard (= 0.11.6)
+  - SQLite.swift/standard (0.11.6)
+  - SwiftLinkPreview (3.0.1)
+
+DEPENDENCIES:
+  - Alamofire
+  - AWSAppSync
+  - GRDB.swift
+  - Kingfisher
+  - MessageKit
+  - SwiftLinkPreview (~> 3.0.1)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - AWSAppSync
+    - AWSCore
+    - GRDB.swift
+    - InputBarAccessoryView
+    - Kingfisher
+    - MessageKit
+    - ReachabilitySwift
+    - SQLite.swift
+    - SwiftLinkPreview
+
+SPEC CHECKSUMS:
+  Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
+  AWSAppSync: 91f63b95f572d908f0a001d5c3016b117e49297a
+  AWSCore: 22b6bbc6761ca9981d878155d11bc02edd681a64
+  GRDB.swift: 99b10e1afa666ff024d76e38b37fefd34b57def4
+  InputBarAccessoryView: 2b937602598e2fab3149f37f51dd7ad795653812
+  Kingfisher: c7d211b54f1f30d8060aadab177d52b4349c825b
+  MessageKit: e892a9ca49ebe6d82684d3a93ad84021fa23e2c6
+  ReachabilitySwift: 408477d1b6ed9779dba301953171e017c31241f3
+  SQLite.swift: 46d890be8601964454bd3392527f863d1b802d45
+  SwiftLinkPreview: 7524438c43bf63a5041615713777c3d8f19a9a31
+
+PODFILE CHECKSUM: 8a2d9500e1f54cc2b1300d8e2c49b5eb92121995
+
+COCOAPODS: 1.6.1

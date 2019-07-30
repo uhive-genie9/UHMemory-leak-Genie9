@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LinkPreviewCell" id="dnH-Hw-sjV" customClass="LinkPreviewCell" customModule="NetworkingRetrier" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="493" height="101"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="493" height="101"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RI8-xJ-UVy">
+                        <rect key="frame" x="0.0" y="0.0" width="493" height="101"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="NDg-i0-eNv">
+                                <rect key="frame" x="0.0" y="0.0" width="493" height="101"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jMU-6w-1sM">
+                                        <rect key="frame" x="0.0" y="0.0" width="493" height="60"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="60" id="ZSl-9I-LI6"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label Label Label sdasdfasdfads Label" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gxU-fO-jb7">
+                                        <rect key="frame" x="242.5" y="60" width="250.5" height="41"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <nil key="highlightedColor"/>
+                                        <size key="shadowOffset" width="0.0" height="0.0"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="NDg-i0-eNv" secondAttribute="trailing" id="3Ac-zJ-uuv"/>
+                            <constraint firstAttribute="bottom" secondItem="NDg-i0-eNv" secondAttribute="bottom" id="POe-YH-tRf"/>
+                            <constraint firstItem="NDg-i0-eNv" firstAttribute="leading" secondItem="RI8-xJ-UVy" secondAttribute="leading" id="b1L-OU-FBB"/>
+                            <constraint firstItem="NDg-i0-eNv" firstAttribute="top" secondItem="RI8-xJ-UVy" secondAttribute="top" id="dSn-WA-io0"/>
+                        </constraints>
+                    </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LXF-f9-HOP">
+                        <rect key="frame" x="0.0" y="0.0" width="493" height="101"/>
+                        <connections>
+                            <action selector="didTappURLWithSender:" destination="dnH-Hw-sjV" eventType="touchUpInside" id="bQD-9T-9Du"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="LXF-f9-HOP" secondAttribute="bottom" id="52T-us-TGJ"/>
+                <constraint firstAttribute="bottom" secondItem="RI8-xJ-UVy" secondAttribute="bottom" id="EIi-9W-IIz"/>
+                <constraint firstItem="LXF-f9-HOP" firstAttribute="top" secondItem="dnH-Hw-sjV" secondAttribute="top" id="Hud-dV-PWV"/>
+                <constraint firstAttribute="trailing" secondItem="RI8-xJ-UVy" secondAttribute="trailing" id="Q6g-xP-yf0"/>
+                <constraint firstItem="RI8-xJ-UVy" firstAttribute="top" secondItem="dnH-Hw-sjV" secondAttribute="top" id="bf2-UE-teM"/>
+                <constraint firstItem="RI8-xJ-UVy" firstAttribute="leading" secondItem="dnH-Hw-sjV" secondAttribute="leading" id="fSA-A7-Jjn"/>
+                <constraint firstItem="LXF-f9-HOP" firstAttribute="leading" secondItem="dnH-Hw-sjV" secondAttribute="leading" id="hjW-C7-3cx"/>
+                <constraint firstAttribute="trailing" secondItem="LXF-f9-HOP" secondAttribute="trailing" id="xIA-n1-u0Y"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="nAV-VH-l75"/>
+            <size key="customSize" width="493" height="159"/>
+            <connections>
+                <outlet property="detemineSenderStackView" destination="NDg-i0-eNv" id="Twt-MA-h9p"/>
+                <outlet property="linkLabel" destination="gxU-fO-jb7" id="zfb-bg-a7q"/>
+                <outlet property="thumbnailImageView" destination="jMU-6w-1sM" id="4y4-E3-69p"/>
+            </connections>
+            <point key="canvasLocation" x="-47.10144927536232" y="-138.95089285714286"/>
+        </collectionViewCell>
+    </objects>
+</document>
