@@ -16,7 +16,8 @@ class UserService {
         let params = ["refresh_token": refreshToken]
         let headers = [
             "BUILDNO" : "1_0.5.4",
-            "Authorization" : "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTY2MzcwNTYwLCJqdGkiOiIyODMyNjIwNzNiYmI0NTFmYmJjNDE5ODMxODhmY2E4NyIsInVzZXJfaWQiOjQ2NDY1LCJ2IjoxfQ.0YgKafOB4Gp6Zo6HaJ8u6mt4O3cWEk7RKVnQ_XDWaGk"
+            "Authorization" : senderAccessToken
+
         ]
         Alamofire.request(url, method: .post, parameters: params, encoding: URLEncoding.default, headers: headers).responseJSON { (response) in
             guard let data = response.data else {return}

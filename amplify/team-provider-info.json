@@ -1,14 +1,14 @@
 {
     "ios": {
         "awscloudformation": {
-            "AuthRoleName": "chat101-ios-20190729120735-authRole",
-            "UnauthRoleArn": "arn:aws:iam::829980417672:role/chat101-ios-20190729120735-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::829980417672:role/chat101-ios-20190729120735-authRole",
+            "AuthRoleName": "uhmemory-leak-genie9-ios-20190910091515-authRole",
+            "UnauthRoleArn": "arn:aws:iam::829980417672:role/uhmemory-leak-genie9-ios-20190910091515-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::829980417672:role/uhmemory-leak-genie9-ios-20190910091515-authRole",
             "Region": "us-east-1",
-            "DeploymentBucketName": "chat101-ios-20190729120735-deployment",
-            "UnauthRoleName": "chat101-ios-20190729120735-unauthRole",
-            "StackName": "chat101-ios-20190729120735",
-            "StackId": "arn:aws:cloudformation:us-east-1:829980417672:stack/chat101-ios-20190729120735/4f489be0-b1e0-11e9-be2f-0a0bad6f0bfa"
+            "DeploymentBucketName": "uhmemory-leak-genie9-ios-20190910091515-deployment",
+            "UnauthRoleName": "uhmemory-leak-genie9-ios-20190910091515-unauthRole",
+            "StackName": "uhmemory-leak-genie9-ios-20190910091515",
+            "StackId": "arn:aws:cloudformation:us-east-1:829980417672:stack/uhmemory-leak-genie9-ios-20190910091515/5b7c4eb0-d392-11e9-881c-123cb1b397a4"
         }
     }
 }

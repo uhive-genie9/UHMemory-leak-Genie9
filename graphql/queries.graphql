@@ -1,4 +1,66 @@
 # this is an auto generated file. This will be overwritten
+query Search(
+  $user_id: Int
+  $search_key: String
+  $fetch_count: Int!
+  $next_token: String
+) {
+  search(
+    user_id: $user_id
+    search_key: $search_key
+    fetch_count: $fetch_count
+    next_token: $next_token
+  ) {
+    conversations {
+      conversation_id
+      last_action
+      last_action_id
+      message {
+        conv_type
+        conversation_id
+        local_id
+        m_type
+        message_id
+        status
+        text
+        timestamp
+        url
+        url_domain
+        url_text
+        thumb_url
+        url_title
+        user_id
+      }
+      peer_user {
+        image_last_changed
+        image_type
+        name
+        user_id
+      }
+      timestamp
+      unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
+    }
+    next_token
+  }
+}
+query CheckNewActionsConversation(
+  $user_id: Int!
+  $conversation_id: Int!
+  $message_id: Int!
+) {
+  checkNewActionsConversation(
+    user_id: $user_id
+    conversation_id: $conversation_id
+    message_id: $message_id
+  ) {
+    new_msgs_count
+  }
+}
 query CheckNewActions(
   $base_conv: Int
   $last_action_id: String
@@ -12,8 +74,12 @@ query CheckNewActions(
     new_actions
   }
 }
-query GetConversation($conversation_id: Int!, $user_id: Int!) {
-  getConversation(conversation_id: $conversation_id, user_id: $user_id) {
+query GetConversation($conversation_id: Int, $peer_id: Int!, $user_id: Int!) {
+  getConversation(
+    conversation_id: $conversation_id
+    peer_id: $peer_id
+    user_id: $user_id
+  ) {
     conversation_id
     last_action
     last_action_id
@@ -29,16 +95,23 @@ query GetConversation($conversation_id: Int!, $user_id: Int!) {
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
     peer_user {
+      image_last_changed
+      image_type
       name
       user_id
     }
     timestamp
     unseen_count
+    last_msg_text
+    last_msg_url
+    last_msg_m_type
+    is_blocked
+    peer_is_blocked
   }
 }
 query GetConversationMessages(
@@ -64,7 +137,7 @@ query GetConversationMessages(
     url
     url_domain
     url_text
-    url_thumb_url
+    thumb_url
     url_title
     user_id
   }
@@ -100,16 +173,23 @@ query GetUserConversations(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
     peer_user {
+      image_last_changed
+      image_type
       name
       user_id
     }
     timestamp
     unseen_count
+    last_msg_text
+    last_msg_url
+    last_msg_m_type
+    is_blocked
+    peer_is_blocked
   }
 }
 query GetUserConversationsDep(
@@ -152,16 +232,23 @@ query GetUserConversationsV2(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
     peer_user {
+      image_last_changed
+      image_type
       name
       user_id
     }
     timestamp
     unseen_count
+    last_msg_text
+    last_msg_url
+    last_msg_m_type
+    is_blocked
+    peer_is_blocked
   }
 }
 query GetUserConversationsV3(
@@ -192,16 +279,23 @@ query GetUserConversationsV3(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     next_token
   }
@@ -223,7 +317,7 @@ query GetUserMessages($fetch_count: Int!, $start_from: Int, $user_id: Int!) {
     url
     url_domain
     url_text
-    url_thumb_url
+    thumb_url
     url_title
     user_id
   }

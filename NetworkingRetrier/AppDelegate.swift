@@ -16,24 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var amplifyHelper = AWSAmplifyHelper()
     var userService = UserService()
-    var gifService = TenorGIF()
+
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        DBHelper.shared.createAllTables()
 
-        gifService.registerAnonymous {[weak self] in
-            self?.gifService.getGIFCategories()
-        }
-
-        let latestMessageInDB = DBHelper.shared.getLatestMessage()
-        let messageID = latestMessageInDB?.messageId
-        
-        userService.refreshUserToken(refreshToken: senderRefreshToken) {
+        userService.refreshUserToken(refreshToken: senderRefreshToken) {[weak self] in
             print("user authorized")
-            self.amplifyHelper.configureAmplify(completion: {[weak self] in
+            self?.amplifyHelper.configureAmplify(completion: {[weak self] in
                 self?.amplifyHelper.startUserSubscription(senderId: senderId)
-                self?.amplifyHelper.getConversations(baseConv: nil, fetchCount: 5, nextToken: "", userId: senderId, completion: { _,_ in })
-                self?.amplifyHelper.getUserMessages(userId: senderId, fetchCount: 10, from: Int(messageID ?? "")) //
             })
         }
         
@@ -52,9 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        let latestMessageInDB = DBHelper.shared.getLatestMessage()
-        let messageID = latestMessageInDB?.messageId
-        amplifyHelper.getUserMessages(userId: senderId, fetchCount: 10, from: Int(messageID ?? "")) //
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
 

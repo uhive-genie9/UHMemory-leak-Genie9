@@ -8,10 +8,10 @@
 
 import Foundation
 
-let senderId = "please check email"
+let senderId = 000-000-000 //Please replace this with the one attached in the email sent
 
 //receiverRefreshToken
-let receiverRefreshToken = "please check email"
+let senderAccessToken = "Please replace this with the one attached in the email sent"
 
 //senderRefreshToken
-let senderRefreshToken = "please check email"
+let senderRefreshToken = "Please replace this with the one attached in the email sent"

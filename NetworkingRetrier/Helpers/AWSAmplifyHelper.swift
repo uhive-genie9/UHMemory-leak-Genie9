@@ -30,9 +30,9 @@ protocol SubscribtionErrorHandlerDelegate: class {
 extension AWSAmplifyHelper: SubscribtionErrorHandlerDelegate {
     
     func doUnauthorized() {
-        userService.refreshUserToken(refreshToken: senderRefreshToken) {
+        userService.refreshUserToken(refreshToken: senderRefreshToken) {[weak self] in
             print("user authorized")
-            self.startUserSubscription(senderId: senderId, completion: nil)
+            self?.startUserSubscription(senderId: senderId, completion: nil)
         }
     }
     

@@ -50,7 +50,7 @@ class BiConversationPresenter {
         self.chatService = services
         self.userService = userService
         appSyncHelper = appDelegate.amplifyHelper
-        messages = DBHelper.shared.getMessages(convsId)
+//        messages = DBHelper.shared.getMessages(convsId)
     }
     
     deinit {
@@ -75,36 +75,36 @@ class BiConversationPresenter {
         appSyncHelper = nil
     }
 
-    func getConversationMessages(fetchCount: Int, lastMessageId: Int? = nil, loadMore: Bool) {
-        appSyncHelper?.getConversatoinMessages(senderId: senderId, conversatoinId: convsId, fetchCount: fetchCount, lastMessageId: lastMessageId, completion: {[weak self] (result) in
-            switch result {
-                
-            case .success(let value):
-                do {
-                    guard let jsonObject = value?.data?.jsonObject else {return} //serialization and mirror coding keys
-                    
-                    var biConversationJSONArray = jsonObject.map{$0.value}
-                    
-                    let jsonData = try JSONSerialization.data(withJSONObject: biConversationJSONArray[0], options: .prettyPrinted)
-                    let biConversationMessages = try JSONDecoder().decode([MessageModel].self, from: jsonData)
-                    
-                    DispatchQueue.main.async {
-                        self?.messages.insert(contentsOf: biConversationMessages.reversed(), at: 0)
-                        DBHelper.shared.saveMessages(self?.messages ?? [])
-                        !(self?.messages.isEmpty ?? true) ? self?.lastMessageId = Int(self?.messages.first?.messageId ?? "") ?? 0 : print("")
-                        loadMore ? self?.view?.didFinishLoadingMore() : self?.view?.didReceiveConversationMessages(); self?.view?.setSeenMutation(self?.messages.last)
-                    }
-                } catch {
-                    print(error)
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        })
-    }
+//    func getConversationMessages(fetchCount: Int, lastMessageId: Int? = nil, loadMore: Bool) {
+//        appSyncHelper?.getConversatoinMessages(senderId: senderId, conversatoinId: convsId, fetchCount: fetchCount, lastMessageId: lastMessageId, completion: {[weak self] (result) in
+//            switch result {
+//                
+//            case .success(let value):
+//                do {
+//                    guard let jsonObject = value?.data?.jsonObject else {return} //serialization and mirror coding keys
+//                    
+//                    var biConversationJSONArray = jsonObject.map{$0.value}
+//                    
+//                    let jsonData = try JSONSerialization.data(withJSONObject: biConversationJSONArray[0], options: .prettyPrinted)
+//                    let biConversationMessages = try JSONDecoder().decode([MessageModel].self, from: jsonData)
+//                    
+//                    DispatchQueue.main.async {
+//                        self?.messages.insert(contentsOf: biConversationMessages.reversed(), at: 0)
+//                        DBHelper.shared.saveMessages(self?.messages ?? [])
+//                        !(self?.messages.isEmpty ?? true) ? self?.lastMessageId = Int(self?.messages.first?.messageId ?? "") ?? 0 : print("")
+//                        loadMore ? self?.view?.didFinishLoadingMore() : self?.view?.didReceiveConversationMessages(); self?.view?.setSeenMutation(self?.messages.last)
+//                    }
+//                } catch {
+//                    print(error)
+//                }
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            }
+//        })
+//    }
     
     func getConversationMessages() {
-        self.messages = DBHelper.shared.getMessages(convsId)
+//        self.messages = DBHelper.shared.getMessages(convsId)
         self.view?.didReceiveConversationMessages()
     }
     
@@ -123,7 +123,7 @@ class BiConversationPresenter {
     
     @objc func loadMoreMessages() {
         if lastMessageId != nil {
-            getConversationMessages(fetchCount: 10, lastMessageId: lastMessageId, loadMore: true)
+//            getConversationMessages(fetchCount: 10, lastMessageId: lastMessageId, loadMore: true)
             return
         }
     }
@@ -183,15 +183,15 @@ class BiConversationPresenter {
         //            })
         //        } else {let timestamp = NSDate().timeIntervalSince1970
         let timeStamp = (Date().timeIntervalSince1970)
-        let message = MessageModel(status: .sent, localId: Int(timeStamp), userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .text, text: text, timestamp:  Int(timeStamp))
+//        let message = MessageModel(status: .sent, localId: Int(timeStamp), userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .text, text: text, timestamp:  Int(timeStamp))
         
-        DBHelper.shared.saveMessage(message)
-        messages.append(message)
+//        DBHelper.shared.saveMessage(message)
+//        messages.append(message)
         view?.didSendMessage()
-        appSyncHelper?.sendTextMessageMutation(receiverId: receiverId, senderId: senderId, localId: timeStamp, conversationId: convsId, text: text, completion: { msgId in
-            guard let messageId = msgId else {return}
-            message.msgId = messageId
-            DBHelper.shared.save(message)//(using: message.localId ?? 0, with: message)
+//        appSyncHelper?.sendTextMessageMutation(receiverId: receiverId, senderId: senderId, localId: timeStamp, conversationId: convsId, text: text, completion: { msgId in
+//            guard let messageId = msgId else {return}
+//            message.msgId = messageId
+//            DBHelper.shared.save(message)//(using: message.localId ?? 0, with: message)
 
             //        let textFormatted = String(format: " \n %@", text)
             //        let paragraphStyle = NSMutableParagraphStyle()
@@ -205,18 +205,18 @@ class BiConversationPresenter {
             //        attributedString.insert(attrStringWithImage, at: 0)
             //
             //        self.messages.append(MessageModel(messageId: String(0), seen: false, sender: Sender(id: "\(senderId)", displayName: "\(senderId)"), kind: .attributedText(attributedString)))
-        })
+//        })
         
     }
     
     func sendLinkMessage(linkMessage: LinkModel?) {
-        guard let linkMsg = linkMessage else {return}
-        appSyncHelper?.sendLinkPreviewMutation(receiverId: receiverId, senderId: senderId, localId: 0, conversationId: convsId, linkPreview: linkMsg, completion: {[weak self] msgId in
-            guard let messageId = msgId else {return}
-            self?.messages.append(MessageModel(status: .sent, msgId: messageId, userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .link, text: "", link: linkMsg, timestamp: Int(Date().timeIntervalSince1970)))
-            
-            self?.view?.didSendMessage()
-        })
+//        guard let linkMsg = linkMessage else {return}
+//        appSyncHelper?.sendLinkPreviewMutation(receiverId: receiverId, senderId: senderId, localId: 0, conversationId: convsId, linkPreview: linkMsg, completion: {[weak self] msgId in
+//            guard let messageId = msgId else {return}
+//            self?.messages.append(MessageModel(status: .sent, msgId: messageId, userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .link, text: "", link: linkMsg, timestamp: Int(Date().timeIntervalSince1970)))
+//
+//            self?.view?.didSendMessage()
+//        })
     }
     
     func isLink(_ text: String) -> Bool {
@@ -225,29 +225,29 @@ class BiConversationPresenter {
     
     func sendImage(image: UIImage) {
         //update image URL
-        let timeStamp = (Date().timeIntervalSince1970)
-        let message = MessageModel(status: .sent, localId:  Int(timeStamp), userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .image, timestamp:  Int(timeStamp))
-        DBHelper.shared.saveMessage(message)
-        messages.append(message)
-        view?.didSendMessage()
-        
-        chatService?.uploadImage(userImage: image, conversationId: convsId) { [weak self] (imageModel) in
-            
-            guard !imageModel.isEmpty else {return}
-            self?.appSyncHelper?.sendImageMessageMutation(receiverId: receiverId, localId: message.localId ?? 0, convoId: convsId, senderId: senderId, url: imageModel[0].path ?? "", completion: {[weak self] (msgId) in
-                guard let messageId = msgId else {return}
-                message.msgId = messageId
-                message.url = imageModel[0].path
-
-                DBHelper.shared.save(message)
-                //DBHelper.shared.updateMessageID(using: message.localId ?? 0, with: message)
-                self?.view?.didSendMessage()
-            })
-        }
+//        let timeStamp = (Date().timeIntervalSince1970)
+//        let message = MessageModel(status: .sent, localId:  Int(timeStamp), userId: senderId, conversationId: convsId, displayName: "\(senderId)", mType: .image, timestamp:  Int(timeStamp))
+//        DBHelper.shared.saveMessage(message)
+//        messages.append(message)
+//        view?.didSendMessage()
+//
+//        chatService?.uploadImage(userImage: image, conversationId: convsId) { [weak self] (imageModel) in
+//
+//            guard !imageModel.isEmpty else {return}
+//            self?.appSyncHelper?.sendImageMessageMutation(receiverId: receiverId, localId: message.localId ?? 0, convoId: convsId, senderId: senderId, url: imageModel[0].path ?? "", completion: {[weak self] (msgId) in
+//                guard let messageId = msgId else {return}
+//                message.msgId = messageId
+//                message.url = imageModel[0].path
+//
+//                DBHelper.shared.save(message)
+//                //DBHelper.shared.updateMessageID(using: message.localId ?? 0, with: message)
+//                self?.view?.didSendMessage()
+//            })
+//        }
     }
     
     func setMessageSeen() {
-        self.appSyncHelper?.setMessageSeenMutation(receiverId: receiverId, conversationId: convsId, lastMessageSeenId: Int(messages.last?.messageId ?? "") ?? 0)
+//        self.appSyncHelper?.setMessageSeenMutation(receiverId: receiverId, conversationId: convsId, lastMessageSeenId: Int(messages.last?.messageId ?? "") ?? 0)
     }
     
     func startTypingTimer() {
@@ -267,16 +267,16 @@ class BiConversationPresenter {
     
     
     func setUserTyping(_ action: TypingAction) {
-        switch action {
-        case .on:
-            guard typing != nil else {
-                typing = true
-                appSyncHelper?.typingMutation(receiverId: receiverId, conversatoinId: convsId, senderId: senderId, action: .on)
-                return }
-        case .off:
-            typing = nil
-            appSyncHelper?.typingMutation(receiverId: receiverId, conversatoinId: convsId, senderId: senderId, action: .off)
-        }
+//        switch action {
+//        case .on:
+//            guard typing != nil else {
+//                typing = true
+//                appSyncHelper?.typingMutation(receiverId: receiverId, conversatoinId: convsId, senderId: senderId, action: .on)
+//                return }
+//        case .off:
+//            typing = nil
+//            appSyncHelper?.typingMutation(receiverId: receiverId, conversatoinId: convsId, senderId: senderId, action: .off)
+//        }
     }
     
     @objc func stopOnlineStatusTimer() {
@@ -290,9 +290,9 @@ class BiConversationPresenter {
     
      @objc private func changeOnlineStatus() {
         self.appSyncHelper?.changeOnlineStatus(senderId: senderId, isOnline: true)
-        appSyncHelper?.getOnlineStatus(userId: receiverId, completion: { [weak self](timeStamp, isOnline) in
-            self?.view?.setUserStatus(status: isOnline ? "Online" : MessageKitDateFormatter.shared.getFormattedLastSeen(timeStamp: Int(timeStamp) ?? 0))
-        })
+//        appSyncHelper?.getOnlineStatus(userId: receiverId, completion: { [weak self](timeStamp, isOnline) in
+//            self?.view?.setUserStatus(status: isOnline ? "Online" : MessageKitDateFormatter.shared.getFormattedLastSeen(timeStamp: Int(timeStamp) ?? 0))
+//        })
     }
     
     
@@ -331,7 +331,7 @@ extension BiConversationPresenter: SubscribtionResultHandlerDelegate {
     
     
     func didReceiveMessagesFromUserMessagesQuery() {
-        messages = DBHelper.shared.getMessages(convsId)
+//        messages = DBHelper.shared.getMessages(convsId)
         self.view?.didReceiveUserMessages()
         setLastMessageReceivedSeen()
     }
@@ -345,15 +345,15 @@ extension BiConversationPresenter: SubscribtionResultHandlerDelegate {
         switch mType {
         case .text:
             
-            let message = MessageModel(status: .seen, msgId: messageModel.messageId, userId: messageModel.userId, conversationId: convsId, displayName: "\(messageModel.userId)", mType: .text, text: messageModel.text, timestamp: Int(timeStamp))
-            messages.append(message)
-            
+//            let message = MessageModel(status: .seen, msgId: messageModel.messageId, userId: messageModel.userId, conversationId: convsId, displayName: "\(messageModel.userId)", mType: .text, text: messageModel.text, timestamp: Int(timeStamp))
+//            messages.append(message)
+//
             self.view?.didReceiveTextMessage()
             setMessageSeen()
         case .image:
-            
-            let message = MessageModel(status: .seen, msgId: messageModel.messageId, userId:  messageModel.userId, conversationId: convsId, displayName: "\(messageModel.userId)", mType: .image, url: messageModel.url ?? "", timestamp: Int(Date().timeIntervalSince1970))
-            messages.append(message)
+//
+//            let message = MessageModel(status: .seen, msgId: messageModel.messageId, userId:  messageModel.userId, conversationId: convsId, displayName: "\(messageModel.userId)", mType: .image, url: messageModel.url ?? "", timestamp: Int(Date().timeIntervalSince1970))
+//            messages.append(message)
             
             self.view?.didReceiveImageMessage()
             setMessageSeen()

@@ -18,16 +18,23 @@ subscription SubscribeByUserId($receiver_id: Int) {
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -41,7 +48,7 @@ subscription SubscribeByUserId($receiver_id: Int) {
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }

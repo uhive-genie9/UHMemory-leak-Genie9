@@ -15,8 +15,109 @@
         "name" : "Query",
         "description" : null,
         "fields" : [ {
+          "name" : "search",
+          "description" : "   search for conversations by Peer name, it is not case sensitive.\n# search_key is the search term that will be searched against\n# next_token is returned for pagination",
+          "args" : [ {
+            "name" : "user_id",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "search_key",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "fetch_count",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "Int",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "next_token",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          } ],
+          "type" : {
+            "kind" : "OBJECT",
+            "name" : "ConversationsList",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "checkNewActionsConversation",
+          "description" : "           Check if chat has new actions",
+          "args" : [ {
+            "name" : "user_id",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "Int",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "conversation_id",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "Int",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "message_id",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "Int",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          } ],
+          "type" : {
+            "kind" : "OBJECT",
+            "name" : "NewActionsConversationType",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
           "name" : "checkNewActions",
-          "description" : "        Check if chat has new actions",
+          "description" : "           Check if chat has new actions",
           "args" : [ {
             "name" : "base_conv",
             "description" : null,
@@ -58,9 +159,18 @@
           "deprecationReason" : null
         }, {
           "name" : "getConversation",
-          "description" : "        Get the conversation information, <br>\n########## Use Case : When you receive/retrieve a message and you dont have information about <br>\n########## the conversation you call this query . ",
+          "description" : "           Get the conversation information, <br>\n# Use Case : When you receive/retrieve a message and you dont have information the related conversation<br>\n# Use Case : On space page in Uhive App, call this query to get the conversation information if exist. ",
           "args" : [ {
             "name" : "conversation_id",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "peer_id",
             "description" : null,
             "type" : {
               "kind" : "NON_NULL",
@@ -95,7 +205,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getConversationMessages",
-          "description" : "        Get messages for the desired conversation in a descencing order",
+          "description" : "           Get messages for the desired conversation in a descencing order",
           "args" : [ {
             "name" : "conversation_id",
             "description" : null,
@@ -158,7 +268,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUnseenCount",
-          "description" : "        Get the Count of Unseen Messages related for the user",
+          "description" : "           Get the Count of Unseen Messages related for the user",
           "args" : [ {
             "name" : "user_id",
             "description" : null,
@@ -182,7 +292,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserConversations",
-          "description" : "        Returns a list of all the conversations that the user is a participant in",
+          "description" : "           Returns a list of all the conversations that the user is a participant in",
           "args" : [ {
             "name" : "fetch_count",
             "description" : null,
@@ -228,7 +338,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserConversations_dep",
-          "description" : "        (Deprecated)  Returns a list of all the conversations that the user is a participant in",
+          "description" : "           (Deprecated)  Returns a list of all the conversations that the user is a participant in",
           "args" : [ {
             "name" : "fetch_count",
             "description" : null,
@@ -274,7 +384,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserConversations_v2",
-          "description" : "        Returns a list of all the conversations that the user is a participant in",
+          "description" : "           Returns a list of all the conversations that the user is a participant in",
           "args" : [ {
             "name" : "fetch_count",
             "description" : null,
@@ -320,7 +430,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserConversations_v3",
-          "description" : "        Returns a list of all the conversations that the user is a participant in",
+          "description" : "           Returns a list of all the conversations that the user is a participant in",
           "args" : [ {
             "name" : "base_conv",
             "description" : null,
@@ -371,7 +481,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserMessages",
-          "description" : "        Get messages by User ID <br>\n############################## this query will return all the messages for the user without grouping them by conversation, the will be orderd by ID.   ",
+          "description" : "           Get messages by User ID <br>\n################################# this query will return all the messages for the user without grouping them by conversation, the will be orderd by ID.   ",
           "args" : [ {
             "name" : "fetch_count",
             "description" : null,
@@ -421,7 +531,7 @@
           "deprecationReason" : null
         }, {
           "name" : "getUserOnlineStatus",
-          "description" : "        Get wether the user is online or offline ",
+          "description" : "           Get wether the user is online or offline ",
           "args" : [ {
             "name" : "user_id",
             "description" : null,
@@ -440,6 +550,473 @@
             "kind" : "OBJECT",
             "name" : "SignalOnlineStatus",
             "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "ConversationsList",
+        "description" : "           Return type for getUserConversations_v3",
+        "fields" : [ {
+          "name" : "conversations",
+          "description" : "           returned list of conversations",
+          "args" : [ ],
+          "type" : {
+            "kind" : "LIST",
+            "name" : null,
+            "ofType" : {
+              "kind" : "OBJECT",
+              "name" : "ConversationsListItem",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "next_token",
+          "description" : "           use the with getUserConversations_v3 to get the next page of pagination. ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "ConversationsListItem",
+        "description" : "           Return type for getUserConversations and startConversation",
+        "fields" : [ {
+          "name" : "conversation_id",
+          "description" : "           Conversation ID",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_action",
+          "description" : "           last action on the convesration, example: when a new message added <br>\n############### the conversation last_action wil be updated. ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_action_id",
+          "description" : "           timstamp in milliseconds for last action on conversation.",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "message",
+          "description" : "        Message object returned when a conversation starts with a message",
+          "args" : [ ],
+          "type" : {
+            "kind" : "OBJECT",
+            "name" : "Message",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "peer_user",
+          "description" : "           The other user that is participant in the conversation<br>\n########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests",
+          "args" : [ ],
+          "type" : {
+            "kind" : "OBJECT",
+            "name" : "User",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "timestamp",
+          "description" : "           Unix timestamp",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "unseen_count",
+          "description" : "           Unseen messages count in the conversations <br>\n############# This will be changed on every new message and every setSeenConversatin call ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_text",
+          "description" : "  Text of the last message in conversation (To be used for view purposes on client)",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_url",
+          "description" : "  The URL of the last message in conversation",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_m_type",
+          "description" : "  The message type of the last message in conversation, this is usefull to show different view for multiple messages types",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "is_blocked",
+          "description" : "  Indicateds wither the conversation is blocked by the user(the performed the request) or not ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "peer_is_blocked",
+          "description" : "  Indicateds wither the conversation is blocked by the peer user or not ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "SCALAR",
+        "name" : "Int",
+        "description" : "Built-in Int",
+        "fields" : null,
+        "inputFields" : null,
+        "interfaces" : null,
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "SCALAR",
+        "name" : "String",
+        "description" : "Built-in String",
+        "fields" : null,
+        "inputFields" : null,
+        "interfaces" : null,
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "Message",
+        "description" : "           Return type for addMessage and any other mutation/query that return a message information",
+        "fields" : [ {
+          "name" : "conv_type",
+          "description" : "           n/a",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "conversation_id",
+          "description" : "           n/a",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "local_id",
+          "description" : "           Message ID in the local database of the sender client i.e Mobile Application",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "m_type",
+          "description" : "           Message type Enum values : <br>\n################################# 0 : TEXT <br>\n################################# 1 : VIDEO <br>\n################################# 2 : PICTURE <br>\n################################# 3 : DOCUMENT <br>\n################################# 4 : LINK <br>\n################################# 5 : LINK_YOUTUBE <br>\n################################# 6 : GIF <br>\n################################# 7 : GIF_TENOR <br>\n################################# 8 : AUDIO <br>\n################################# 9 : LOCATION <br>",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "message_id",
+          "description" : "           Message ID in the server DB",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "status",
+          "description" : "           Message status Enum values : <br> \n################################# 0 : SENT <br>\n################################# 1 : SEEN<br>",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "text",
+          "description" : "           Message text",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "timestamp",
+          "description" : "           Unix timestamp",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "url",
+          "description" : "           URL of the attachment, link, gif",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "url_domain",
+          "description" : "           URL preview domain",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "url_text",
+          "description" : "           URL preview text",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "thumb_url",
+          "description" : "           URL preview thumb",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "url_title",
+          "description" : "           URL preview Title",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "user_id",
+          "description" : "           User ID of the sender",
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "User",
+        "description" : "           User Profile Object which will be populated from Uhive Main database",
+        "fields" : [ {
+          "name" : "image_last_changed",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "image_type",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "name",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "user_id",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "SCALAR",
+        "name" : "Boolean",
+        "description" : "Built-in Boolean",
+        "fields" : null,
+        "inputFields" : null,
+        "interfaces" : null,
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "NewActionsConversationType",
+        "description" : null,
+        "fields" : [ {
+          "name" : "new_msgs_count",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
+            }
           },
           "isDeprecated" : false,
           "deprecationReason" : null
@@ -473,349 +1050,9 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-        "kind" : "SCALAR",
-        "name" : "Boolean",
-        "description" : "Built-in Boolean",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "SCALAR",
-        "name" : "Int",
-        "description" : "Built-in Int",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "SCALAR",
-        "name" : "String",
-        "description" : "Built-in String",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "OBJECT",
-        "name" : "ConversationsListItem",
-        "description" : "        Return type for getUserConversations and startConversation",
-        "fields" : [ {
-          "name" : "conversation_id",
-          "description" : "        Conversation ID",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "last_action",
-          "description" : "        last action on the convesration, example: when a new message added <br>\n############ the conversation last_action wil be updated. ",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "last_action_id",
-          "description" : "        timstamp in milliseconds for last action on conversation.",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "message",
-          "description" : "     Message object returned when a conversation starts with a message",
-          "args" : [ ],
-          "type" : {
-            "kind" : "OBJECT",
-            "name" : "Message",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "peer_user",
-          "description" : "        The other user that is participant in the conversation<br>\n####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests",
-          "args" : [ ],
-          "type" : {
-            "kind" : "OBJECT",
-            "name" : "User",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "timestamp",
-          "description" : "        Unix timestamp",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "ID",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "unseen_count",
-          "description" : "        Unseen messages count in the conversations <br>\n########## This will be chaned on every new message and every setSeenConversatin call ",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        } ],
-        "inputFields" : null,
-        "interfaces" : [ ],
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "SCALAR",
-        "name" : "ID",
-        "description" : "Built-in ID",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "OBJECT",
-        "name" : "Message",
-        "description" : "        Return type for addMessage and any other mutation/query that return a message information",
-        "fields" : [ {
-          "name" : "conv_type",
-          "description" : "        n/a",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "conversation_id",
-          "description" : "        n/a",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "local_id",
-          "description" : "        Message ID in the local database of the sender client i.e Mobile Application",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "m_type",
-          "description" : "        Message type Enum values : <br>\n############################## 0 : TEXT <br>\n############################## 1 : VIDEO <br>\n############################## 2 : PICTURE <br>\n############################## 3 : DOCUMENT <br>\n############################## 4 : LINK <br>\n############################## 5 : LINK_YOUTUBE <br>\n############################## 6 : GIF <br>\n############################## 7 : GIF_TENOR <br>\n############################## 8 : AUDIO <br>\n############################## 9 : LOCATION <br>",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "message_id",
-          "description" : "        Message ID in the server DB",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "status",
-          "description" : "        Message status Enum values : <br> \n############################## 0 : SENT <br>\n############################## 1 : SEEN<br>",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "text",
-          "description" : "        Message text",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "timestamp",
-          "description" : "        Unix timestamp",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "url",
-          "description" : "        URL of the attachment, link, gif",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "url_domain",
-          "description" : "        URL preview domain",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : true,
-          "deprecationReason" : "Url Preview meta data are generated locally."
-        }, {
-          "name" : "url_text",
-          "description" : "        URL preview text",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : true,
-          "deprecationReason" : "Url Preview meta data are generated locally."
-        }, {
-          "name" : "url_thumb_url",
-          "description" : "        URL preview thumb",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : true,
-          "deprecationReason" : "Url Preview meta data are generated locally."
-        }, {
-          "name" : "url_title",
-          "description" : "        URL preview Title",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : true,
-          "deprecationReason" : "Url Preview meta data are generated locally."
-        }, {
-          "name" : "user_id",
-          "description" : "        User ID of the sender",
-          "args" : [ ],
-          "type" : {
-            "kind" : "NON_NULL",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            }
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        } ],
-        "inputFields" : null,
-        "interfaces" : [ ],
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "OBJECT",
-        "name" : "User",
-        "description" : "        User Profile Object which will be populated from Uhive Main database",
-        "fields" : [ {
-          "name" : "name",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        }, {
-          "name" : "user_id",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        } ],
-        "inputFields" : null,
-        "interfaces" : [ ],
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
         "kind" : "OBJECT",
         "name" : "UnseenCount",
-        "description" : "        Return type for getUnseenCount, it returnes the number of unseen messages related to the user",
+        "description" : "           Return type for getUnseenCount, it returnes the number of unseen messages related to the user",
         "fields" : [ {
           "name" : "count",
           "description" : null,
@@ -854,10 +1091,10 @@
       }, {
         "kind" : "OBJECT",
         "name" : "Conversation",
-        "description" : "        Return type for startConversation and startSupportConversation 0-*-",
+        "description" : "           Return type for startConversation and startSupportConversation 0-*-",
         "fields" : [ {
           "name" : "conversation_id",
-          "description" : "        n/a",
+          "description" : "           n/a",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -868,7 +1105,7 @@
           "deprecationReason" : null
         }, {
           "name" : "receiver_id",
-          "description" : "        User of the targeted user",
+          "description" : "           User of the targeted user",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -879,7 +1116,7 @@
           "deprecationReason" : null
         }, {
           "name" : "sender_id",
-          "description" : "        User ID of the craetor",
+          "description" : "           User ID of the craetor",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -895,26 +1132,22 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-        "name" : "ConversationsList",
-        "description" : "        Return type for getUserConversations_v3",
+        "name" : "SignalOnlineStatus",
+        "description" : "           Return type for changeOnlineStatus and getUserOnlineStatus",
         "fields" : [ {
-          "name" : "conversations",
-          "description" : "        returned list of conversations",
+          "name" : "is_online",
+          "description" : "           Detemines whether the user last_seen is no more 5 seconds past from the time of calling getUserOnlineStatus",
           "args" : [ ],
           "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "OBJECT",
-              "name" : "ConversationsListItem",
-              "ofType" : null
-            }
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-          "name" : "next_token",
-          "description" : "        use the with getUserConversations_v3 to get the next page of pagination. ",
+          "name" : "last_seen",
+          "description" : "           Unix timestamp in mille-seconds",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -930,12 +1163,42 @@
         "possibleTypes" : null
       }, {
         "kind" : "OBJECT",
-        "name" : "SignalOnlineStatus",
-        "description" : "        Return type for changeOnlineStatus and getUserOnlineStatus",
+        "name" : "Mutation",
+        "description" : null,
         "fields" : [ {
-          "name" : "is_online",
-          "description" : "        Detemines whether the user last_seen is no more 5 seconds past from the time of calling getUserOnlineStatus",
-          "args" : [ ],
+          "name" : "deleteConversations",
+          "description" : "  Deleting the conversation will not remove it from the database, it will only set a timestamp of the deletion time <br>\n# which will not allow the user to fetch messages before it. <br>\n# When a conversation is deleted it will not be listed in user's conversations until a new action(like a new message) is emerged",
+          "args" : [ {
+            "name" : "user_id",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "Int",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "conversations_ids",
+            "description" : null,
+            "type" : {
+              "kind" : "LIST",
+              "name" : null,
+              "ofType" : {
+                "kind" : "NON_NULL",
+                "name" : null,
+                "ofType" : {
+                  "kind" : "SCALAR",
+                  "name" : "Int",
+                  "ofType" : null
+                }
+              }
+            },
+            "defaultValue" : null
+          } ],
           "type" : {
             "kind" : "SCALAR",
             "name" : "Boolean",
@@ -944,28 +1207,8 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-          "name" : "last_seen",
-          "description" : "        Unix timestamp in mille-seconds",
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "ID",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        } ],
-        "inputFields" : null,
-        "interfaces" : [ ],
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "OBJECT",
-        "name" : "Mutation",
-        "description" : null,
-        "fields" : [ {
           "name" : "addMessage",
-          "description" : "        Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
+          "description" : "           Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
           "args" : [ {
             "name" : "conversation_id",
             "description" : null,
@@ -1051,7 +1294,7 @@
             },
             "defaultValue" : null
           }, {
-            "name" : "url_thumb_url",
+            "name" : "thumb_url",
             "description" : null,
             "type" : {
               "kind" : "SCALAR",
@@ -1091,7 +1334,7 @@
           "deprecationReason" : null
         }, {
           "name" : "addMessage_v2",
-          "description" : "        Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
+          "description" : "           Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
           "args" : [ {
             "name" : "conv_type",
             "description" : null,
@@ -1190,7 +1433,7 @@
             },
             "defaultValue" : null
           }, {
-            "name" : "url_thumb_url",
+            "name" : "thumb_url",
             "description" : null,
             "type" : {
               "kind" : "SCALAR",
@@ -1230,22 +1473,22 @@
           "deprecationReason" : null
         }, {
           "name" : "addMessage_v3",
-          "description" : "        Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
+          "description" : "           Send message to a conversation, the \"receiver_id\"<Int> will determine which user will recieve this message ",
           "args" : [ {
-            "name" : "receiver_id",
-            "description" : null,
-            "type" : {
-              "kind" : "SCALAR",
-              "name" : "Int",
-              "ofType" : null
-            },
-            "defaultValue" : null
-          }, {
             "name" : "message",
             "description" : null,
             "type" : {
               "kind" : "INPUT_OBJECT",
               "name" : "MessageInput",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "receiver_id",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
               "ofType" : null
             },
             "defaultValue" : null
@@ -1309,7 +1552,7 @@
           "deprecationReason" : null
         }, {
           "name" : "changeOnlineStatus",
-          "description" : "        Specifies whether the user is online of offline, this will persist in the database so other users can query about it ",
+          "description" : "           Specifies whether the user is online of offline, this will persist in the database so other users can query about it ",
           "args" : [ {
             "name" : "is_online",
             "description" : null,
@@ -1383,7 +1626,7 @@
           "deprecationReason" : null
         }, {
           "name" : "newGroupAdded",
-          "description" : "        ***\n############################## Group mutations\n############################## ***",
+          "description" : "           ***\n################################# Group mutations\n################################# ***",
           "args" : [ {
             "name" : "group_id",
             "description" : null,
@@ -1420,7 +1663,7 @@
           "deprecationReason" : null
         }, {
           "name" : "publishTyping",
-          "description" : "        Publish typing so the other parties of the conversation will know when you started typing and when you finished ",
+          "description" : "           Publish typing so the other parties of the conversation will know when you started typing and when you finished ",
           "args" : [ {
             "name" : "action",
             "description" : null,
@@ -1557,7 +1800,7 @@
           "deprecationReason" : null
         }, {
           "name" : "setSeenConversation",
-          "description" : "        Set all message before \"last_msg_seen_id\"<Int> as seen in a conversation",
+          "description" : "           Set all message before \"last_msg_seen_id\"<Int> as seen in a conversation",
           "args" : [ {
             "name" : "conversation_id",
             "description" : null,
@@ -1607,7 +1850,7 @@
           "deprecationReason" : null
         }, {
           "name" : "startConversation",
-          "description" : "        Start a conversation between two users <br>\n########################## The receiver user will get be notified of new conversation through the subscription <br>",
+          "description" : "           Start a conversation between two users <br>\n############################# The receiver user will get be notified of new conversation through the subscription <br>",
           "args" : [ {
             "name" : "message",
             "description" : null,
@@ -1716,7 +1959,7 @@
           "deprecationReason" : null
         }, {
           "name" : "startSupportConversation",
-          "description" : "        Start a conversation with Uhive support agent",
+          "description" : "           Start a conversation with Uhive support agent",
           "args" : [ {
             "name" : "sender_id",
             "description" : null,
@@ -1783,10 +2026,10 @@
       }, {
         "kind" : "OBJECT",
         "name" : "UserIdGenericOutput",
-        "description" : "        UserIdGenericOutput is a return type for most of mutations\n############################## Its a return type for the subscription too, its been developed to unified the subsciptions into one subscription",
+        "description" : "           UserIdGenericOutput is a return type for most of mutations\n################################# Its a return type for the subscription too, its been developed to unified the subsciptions into one subscription",
         "fields" : [ {
           "name" : "action_type",
-          "description" : "        action_type Enum values : <br>\n############################## 0 : NEW_MESSAGE <br>\n############################## 1 : TYPING <br>\n############################## 2 : SEEN <br> \n############################## 3 : NEW_CONVERSATION <br> \n############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>",
+          "description" : "           action_type Enum values : <br>\n################################# 0 : NEW_MESSAGE <br>\n################################# 1 : TYPING <br>\n################################# 2 : SEEN <br> \n################################# 3 : NEW_CONVERSATION <br> \n################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -1797,7 +2040,7 @@
           "deprecationReason" : null
         }, {
           "name" : "conversation",
-          "description" : "        New-Conversation in case of action_type = 3",
+          "description" : "           New-Conversation in case of action_type = 3",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1808,7 +2051,7 @@
           "deprecationReason" : null
         }, {
           "name" : "message",
-          "description" : "        Message body in case if action_type is 0",
+          "description" : "           Message body in case if action_type is 0",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1819,7 +2062,7 @@
           "deprecationReason" : null
         }, {
           "name" : "receiver_id",
-          "description" : "        The User ID that will receive this output through subscribeByUserID ",
+          "description" : "           The User ID that will receive this output through subscribeByUserID ",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -1830,7 +2073,7 @@
           "deprecationReason" : null
         }, {
           "name" : "seen",
-          "description" : "        Seen information in case of action_type = 2",
+          "description" : "           Seen information in case of action_type = 2",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1841,7 +2084,7 @@
           "deprecationReason" : null
         }, {
           "name" : "typing",
-          "description" : "        Typing infromation in case if action_type is 1 ",
+          "description" : "           Typing infromation in case if action_type is 1 ",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1858,10 +2101,10 @@
       }, {
         "kind" : "OBJECT",
         "name" : "ConversationsListItem_startConversation",
-        "description" : "        Return type for getUserConversations and startConversation",
+        "description" : "           Return type for getUserConversations and startConversation",
         "fields" : [ {
           "name" : "conversation_id",
-          "description" : "        Conversation ID",
+          "description" : "           Conversation ID",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
@@ -1876,7 +2119,7 @@
           "deprecationReason" : null
         }, {
           "name" : "last_action",
-          "description" : "        last action on the convesration, example: when a new message added <br>\n############ the conversation last_action wil be updated. ",
+          "description" : "           last action on the convesration, example: when a new message added <br>\n############### the conversation last_action wil be updated. ",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -1887,18 +2130,18 @@
           "deprecationReason" : null
         }, {
           "name" : "last_action_id",
-          "description" : "        timstamp in milliseconds for last action on conversation.",
+          "description" : "           timstamp in milliseconds for last action on conversation.",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
-            "name" : "ID",
+            "name" : "String",
             "ofType" : null
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
           "name" : "message",
-          "description" : "        Message object returned when a conversation starts with a message ",
+          "description" : "           Message object returned when a conversation starts with a message ",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1909,7 +2152,7 @@
           "deprecationReason" : null
         }, {
           "name" : "peer_user",
-          "description" : "        The other user that is participant in the conversation<br>\n####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests",
+          "description" : "           The other user that is participant in the conversation<br>\n########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests",
           "args" : [ ],
           "type" : {
             "kind" : "OBJECT",
@@ -1920,14 +2163,14 @@
           "deprecationReason" : null
         }, {
           "name" : "timestamp",
-          "description" : "        Unix timestamp",
+          "description" : "           Unix timestamp",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
             "ofType" : {
               "kind" : "SCALAR",
-              "name" : "ID",
+              "name" : "String",
               "ofType" : null
             }
           },
@@ -1935,11 +2178,66 @@
           "deprecationReason" : null
         }, {
           "name" : "unseen_count",
-          "description" : "        Unseen messages count in the conversations <br>\n########## This will be chaned on every new message and every setSeenConversatin call ",
+          "description" : "           Unseen messages count in the conversations <br>\n############# This will be chaned on every new message and every setSeenConversatin call ",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
             "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_text",
+          "description" : "  Text of the last message in conversation (To be used for view purposes on client)",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_url",
+          "description" : "  The URL of the last message in conversation",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "last_msg_m_type",
+          "description" : "  The message type of the last message in conversation, this is usefull to show different view for multiple messages types",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Int",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "is_blocked",
+          "description" : "  Indicateds wither the conversation is blocked by the user(the performed the request) or not ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "peer_is_blocked",
+          "description" : "  Indicateds wither the conversation is blocked by the peer user or not ",
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -1952,10 +2250,10 @@
       }, {
         "kind" : "OBJECT",
         "name" : "SeenOutput",
-        "description" : "        Returned as a field in UserIdGenericOutput",
+        "description" : "           Returned as a field in UserIdGenericOutput",
         "fields" : [ {
           "name" : "conversation_id",
-          "description" : "        The conversation which the other client marked as seen ",
+          "description" : "           The conversation which the other client marked as seen ",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
@@ -1970,7 +2268,7 @@
           "deprecationReason" : null
         }, {
           "name" : "last_msg_seen_id",
-          "description" : "        Message ID of the last seen message on the other client",
+          "description" : "           Message ID of the last seen message on the other client",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
@@ -1991,10 +2289,10 @@
       }, {
         "kind" : "OBJECT",
         "name" : "TypingCommiter",
-        "description" : "        This will be returned as a field in UserIdGenericOutput <br>\n############################## It holds information about who published typing",
+        "description" : "           This will be returned as a field in UserIdGenericOutput <br>\n################################# It holds information about who published typing",
         "fields" : [ {
           "name" : "action",
-          "description" : "        Action Enum values : <br>\n############################## 0 : START_TYPING <br>\n############################## 1 : STOP_TYPING ",
+          "description" : "           Action Enum values : <br>\n################################# 0 : START_TYPING <br>\n################################# 1 : STOP_TYPING ",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
@@ -2009,7 +2307,7 @@
           "deprecationReason" : null
         }, {
           "name" : "conversation_id",
-          "description" : "        Conversation ID that the typing happened within",
+          "description" : "           Conversation ID that the typing happened within",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -2042,7 +2340,7 @@
           "deprecationReason" : null
         }, {
           "name" : "user_id",
-          "description" : "        User ID that committed the typing action",
+          "description" : "           User ID that committed the typing action",
           "args" : [ ],
           "type" : {
             "kind" : "SCALAR",
@@ -2063,7 +2361,7 @@
         "fields" : null,
         "inputFields" : [ {
           "name" : "conversation_id",
-          "description" : "        n/a , is optional in case of when you startConversation with a message",
+          "description" : "           n/a , is optional in case of when you startConversation with a message",
           "type" : {
             "kind" : "SCALAR",
             "name" : "Int",
@@ -2072,7 +2370,7 @@
           "defaultValue" : null
         }, {
           "name" : "local_id",
-          "description" : "        Message id in client's local database",
+          "description" : "           Message id in client's local database",
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
@@ -2085,7 +2383,7 @@
           "defaultValue" : null
         }, {
           "name" : "m_type",
-          "description" : "        Message type Enum values : <br>\n############################## 0 : TEXT <br>\n############################## 1 : VIDEO <br>\n############################## 2 : PICTURE <br>\n############################## 3 : DOCUMENT <br>\n############################## 4 : LINK <br>\n############################## 5 : LINK_YOUTUBE <br>\n############################## 6 : GIF <br>\n############################## 7 : GIF_TENOR <br>\n############################## 8 : AUDIO <br>\n############################## 9 : LOCATION",
+          "description" : "           Message type Enum values : <br>\n################################# 0 : TEXT <br>\n################################# 1 : VIDEO <br>\n################################# 2 : PICTURE <br>\n################################# 3 : DOCUMENT <br>\n################################# 4 : LINK <br>\n################################# 5 : LINK_YOUTUBE <br>\n################################# 6 : GIF <br>\n################################# 7 : GIF_TENOR <br>\n################################# 8 : AUDIO <br>\n################################# 9 : LOCATION",
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
@@ -2098,7 +2396,7 @@
           "defaultValue" : null
         }, {
           "name" : "receiver_id",
-          "description" : "        ID of the other party of the convesration; that will receive this action on subscription",
+          "description" : "           ID of the other party of the convesration; that will receive this action on subscription",
           "type" : {
             "kind" : "SCALAR",
             "name" : "Int",
@@ -2107,7 +2405,7 @@
           "defaultValue" : null
         }, {
           "name" : "text",
-          "description" : "        Message text",
+          "description" : "           Message text",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2116,7 +2414,7 @@
           "defaultValue" : null
         }, {
           "name" : "url",
-          "description" : "        URL of the attachment, link, gif",
+          "description" : "           URL of the attachment, link, gif",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2125,7 +2423,7 @@
           "defaultValue" : null
         }, {
           "name" : "url_domain",
-          "description" : "        URL preview domain",
+          "description" : "           URL preview domain",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2134,7 +2432,7 @@
           "defaultValue" : null
         }, {
           "name" : "url_text",
-          "description" : "        URL preview text",
+          "description" : "           URL preview text",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2142,8 +2440,8 @@
           },
           "defaultValue" : null
         }, {
-          "name" : "url_thumb_url",
-          "description" : "        URL preview thumb",
+          "name" : "thumb_url",
+          "description" : "           URL preview thumb",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2152,7 +2450,7 @@
           "defaultValue" : null
         }, {
           "name" : "url_title",
-          "description" : "        URL preview Title",
+          "description" : "           URL preview Title",
           "type" : {
             "kind" : "SCALAR",
             "name" : "String",
@@ -2161,7 +2459,7 @@
           "defaultValue" : null
         }, {
           "name" : "user_id",
-          "description" : "        User ID of the sender",
+          "description" : "           User ID of the sender",
           "type" : {
             "kind" : "NON_NULL",
             "name" : null,
@@ -2312,7 +2610,7 @@
         "description" : null,
         "fields" : [ {
           "name" : "subscribeByUserID",
-          "description" : "        - This is generic subscription for all actions <br>\n############################## - The cleint will subscribe for this topic and all the actions will be recieved through this channel <br> \n############################## - This subscription will be attached for the following mutations : <br>\n##############################\t\t- addMessage <br>\n############################## \t\t- publishTyping <br>\n##############################\t\t- setSeenConversation <br>\n##############################\t\t- newGroupAdded <br>\n############################## - The subscriber will receive a message when someone calls any of the preceeded mutations <br>\n############################## - The \"receiver_id\" in any of the preceeded mutations should should match the receiver_id(which is your User ID as a subscriber) of this subscription. <br>  ",
+          "description" : "           - This is generic subscription for all actions <br>\n################################# - The cleint will subscribe for this topic and all the actions will be recieved through this channel <br> \n################################# - This subscription will be attached for the following mutations : <br>\n#################################   - addMessage <br>\n#################################     - publishTyping <br>\n#################################   - setSeenConversation <br>\n#################################   - newGroupAdded <br>\n################################# - The subscriber will receive a message when someone calls any of the preceeded mutations <br>\n################################# - The \"receiver_id\" in any of the preceeded mutations should should match the receiver_id(which is your User ID as a subscriber) of this subscription. <br>  ",
           "args" : [ {
             "name" : "receiver_id",
             "description" : null,
@@ -2326,6 +2624,26 @@
           "type" : {
             "kind" : "OBJECT",
             "name" : "UserIdGenericOutput",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        } ],
+        "inputFields" : null,
+        "interfaces" : [ ],
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "OBJECT",
+        "name" : "Topic_Error_Codes",
+        "description" : "      Appsync errors <br>\n#### Response field \"errorInfo\" : Error Code  <br>\n#### Response field \"message\" : Error description <br>\n#### Response field \"errorType\" : Error category <br>\n#### <br>\n#### The following are the handled errors : <br>\n#### - Error code \"0\" : USER_NOT_PERMITTED\n#### - Error code \"1\" : DUPLICATED_CONVERSATION\n#### - Error code \"2\" : UNAUTHORIZED_CONVERSATION\n#### - Error code \"3\" : MESSAGE_TEXT_SIZE_LIMIT_EXCEEDED\n#### - Error code \"4\" : MESSAGE_TEXT_EMPTY\n#### - Error code \"5\" : MESSAGE_URL_EMPTY",
+        "fields" : [ {
+          "name" : "error",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -2357,26 +2675,6 @@
           "type" : {
             "kind" : "SCALAR",
             "name" : "Int",
-            "ofType" : null
-          },
-          "isDeprecated" : false,
-          "deprecationReason" : null
-        } ],
-        "inputFields" : null,
-        "interfaces" : [ ],
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
-        "kind" : "OBJECT",
-        "name" : "Topic_Error_Codes",
-        "description" : "   Appsync errors <br>\n# Response field \"errorInfo\" : Error Code  <br>\n# Response field \"message\" : Error description <br>\n# Response field \"errorType\" : Error category <br>\n# <br>\n# The following are the handled errors : <br>\n# - Error code \"0\" : USER_NOT_PERMITTED\n# - Error code \"1\" : DUPLICATED_CONVERSATION\n# - Error code \"2\" : UNAUTHORIZED_CONVERSATION\n# - Error code \"3\" : MESSAGE_TEXT_SIZE_LIMIT_EXCEEDED\n# - Error code \"4\" : MESSAGE_TEXT_EMPTY\n# - Error code \"5\" : MESSAGE_URL_EMPTY",
-        "fields" : [ {
-          "name" : "error",
-          "description" : null,
-          "args" : [ ],
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
             "ofType" : null
           },
           "isDeprecated" : false,
@@ -3170,6 +3468,81 @@
         "onFragment" : false,
         "onField" : true
       }, {
+        "name" : "aws_iam",
+        "description" : "Tells the service this field/object has access authorized by sigv4 signing.",
+        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
+        "args" : [ ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
+        "name" : "aws_oidc",
+        "description" : "Tells the service this field/object has access authorized by an OIDC token.",
+        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
+        "args" : [ ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
+        "name" : "aws_subscribe",
+        "description" : "Tells the service which mutation triggers this subscription.",
+        "locations" : [ "FIELD_DEFINITION" ],
+        "args" : [ {
+          "name" : "mutations",
+          "description" : "List of mutations which will trigger this subscription when they are called.",
+          "type" : {
+            "kind" : "LIST",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            }
+          },
+          "defaultValue" : null
+        } ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
+        "name" : "deprecated",
+        "description" : null,
+        "locations" : [ "FIELD_DEFINITION", "ENUM_VALUE" ],
+        "args" : [ {
+          "name" : "reason",
+          "description" : null,
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "defaultValue" : "\"No longer supported\""
+        } ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
+        "name" : "aws_cognito_user_pools",
+        "description" : "Tells the service this field/object has access authorized by a Cognito User Pools token.",
+        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
+        "args" : [ {
+          "name" : "cognito_groups",
+          "description" : "List of cognito user pool groups which have access on this field",
+          "type" : {
+            "kind" : "LIST",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            }
+          },
+          "defaultValue" : null
+        } ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
         "name" : "aws_publish",
         "description" : "Tells the service which subscriptions will be published to when this mutation is called. This directive is deprecated use @aws_susbscribe directive instead.",
         "locations" : [ "FIELD_DEFINITION" ],
@@ -3212,83 +3585,8 @@
         "onFragment" : false,
         "onField" : false
       }, {
-        "name" : "aws_cognito_user_pools",
-        "description" : "Tells the service this field/object has access authorized by a Cognito User Pools token.",
-        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
-        "args" : [ {
-          "name" : "cognito_groups",
-          "description" : "List of cognito user pool groups which have access on this field",
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "String",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        } ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
-        "name" : "aws_iam",
-        "description" : "Tells the service this field/object has access authorized by sigv4 signing.",
-        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
-        "args" : [ ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
-        "name" : "aws_subscribe",
-        "description" : "Tells the service which mutation triggers this subscription.",
-        "locations" : [ "FIELD_DEFINITION" ],
-        "args" : [ {
-          "name" : "mutations",
-          "description" : "List of mutations which will trigger this subscription when they are called.",
-          "type" : {
-            "kind" : "LIST",
-            "name" : null,
-            "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "String",
-              "ofType" : null
-            }
-          },
-          "defaultValue" : null
-        } ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
         "name" : "aws_api_key",
         "description" : "Tells the service this field/object has access authorized by an API key.",
-        "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
-        "args" : [ ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
-        "name" : "deprecated",
-        "description" : null,
-        "locations" : [ "FIELD_DEFINITION", "ENUM_VALUE" ],
-        "args" : [ {
-          "name" : "reason",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "defaultValue" : "\"No longer supported\""
-        } ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
-        "name" : "aws_oidc",
-        "description" : "Tells the service this field/object has access authorized by an OIDC token.",
         "locations" : [ "OBJECT", "FIELD_DEFINITION" ],
         "args" : [ ],
         "onOperation" : false,

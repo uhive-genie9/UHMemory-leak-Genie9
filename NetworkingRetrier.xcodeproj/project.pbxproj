@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,33 +16,22 @@
 		16127FE922648E1900E9DF74 /* ConnectionStateHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16127FE822648E1900E9DF74 /* ConnectionStateHelper.swift */; };
 		16127FEB22648E3200E9DF74 /* UserPoolAuthProviderHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16127FEA22648E3200E9DF74 /* UserPoolAuthProviderHelper.swift */; };
 		16127FED22648FA400E9DF74 /* AppSyncErrorhandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16127FEC22648FA400E9DF74 /* AppSyncErrorhandler.swift */; };
-		16379DEE22BBBDEF004D722F /* GIFCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16379DEC22BBBDEF004D722F /* GIFCategoriesCell.swift */; };
-		16379DEF22BBBDEF004D722F /* GIFCategoriesCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16379DED22BBBDEF004D722F /* GIFCategoriesCell.xib */; };
-		16379DF322BBBE2C004D722F /* GIFKeyboardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16379DF122BBBE2C004D722F /* GIFKeyboardCell.swift */; };
-		16379DF422BBBE2C004D722F /* GIFKeyboardCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16379DF222BBBE2C004D722F /* GIFKeyboardCell.xib */; };
+		1663630C23277F94000C9DAB /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 1663630B23277F94000C9DAB /* awsconfiguration.json */; };
 		168FCE4A22802A56001CB9D5 /* ConversationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168FCE4922802A56001CB9D5 /* ConversationsController.swift */; };
 		168FCE4C228036B0001CB9D5 /* ConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168FCE4B228036B0001CB9D5 /* ConversationCell.swift */; };
 		16CDA90C229A9E1D00705044 /* ConversationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CDA90B229A9E1D00705044 /* ConversationModel.swift */; };
-		16CFE54822B8D793002B5442 /* GIFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CFE54622B8D793002B5442 /* GIFView.swift */; };
-		16CFE54922B8D793002B5442 /* GIFView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16CFE54722B8D793002B5442 /* GIFView.xib */; };
-		16CFE54D22B8F40F002B5442 /* GIFPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CFE54C22B8F40F002B5442 /* GIFPresenter.swift */; };
 		16CFE54F22B8F43D002B5442 /* GIFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CFE54E22B8F43D002B5442 /* GIFModel.swift */; };
-		16DCA20022B6498100F3BEB8 /* TenorServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DCA1FF22B6498100F3BEB8 /* TenorServices.swift */; };
 		16DCA20222B662CE00F3BEB8 /* ConversationListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DCA20122B662CE00F3BEB8 /* ConversationListPresenter.swift */; };
 		16DCA20422B6652800F3BEB8 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DCA20322B6652800F3BEB8 /* UserService.swift */; };
 		16E5E56C2266FB0C005D0F9E /* MessageKitDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5E56B2266FB0C005D0F9E /* MessageKitDateFormatter.swift */; };
 		16E5E56E22671A08005D0F9E /* MessageActionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5E56D22671A08005D0F9E /* MessageActionTypes.swift */; };
 		16E5E5712267268E005D0F9E /* TokenModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5E5702267268E005D0F9E /* TokenModel.swift */; };
 		16E5E5732267755C005D0F9E /* ImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5E5722267755C005D0F9E /* ImageModel.swift */; };
-		16EAB28C2253592D00C676B9 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EAB28A2253592D00C676B9 /* ChatViewController.swift */; };
 		16EAB28F22535B8500C676B9 /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EAB28E22535B8500C676B9 /* MessageModel.swift */; };
 		16EAB293225494D600C676B9 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EAB292225494D600C676B9 /* ChatService.swift */; };
 		16F5EB4C22C221F000DC38CF /* CollectionViewAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F5EB4B22C221F000DC38CF /* CollectionViewAdapter.swift */; };
 		16FCEF86228C1C6F0010BF17 /* LinkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FCEF85228C1C6F0010BF17 /* LinkModel.swift */; };
-		16FCEF8A228C3B1D0010BF17 /* LinkPreviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FCEF88228C3B1D0010BF17 /* LinkPreviewCell.swift */; };
-		16FCEF8D228C3C390010BF17 /* LinkPreviewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16FCEF8C228C3C390010BF17 /* LinkPreviewCell.xib */; };
 		501A492DC3A34D9CF702577E /* Pods_NetworkingRetrier.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BD5D7054D5EC1A0A8C963E1 /* Pods_NetworkingRetrier.framework */; };
-		BAE1BE9A22EEEFD800F2B6D1 /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = BAE1BE9922EEEFD800F2B6D1 /* awsconfiguration.json */; };
 		BAE1BE9F22EEF0F800F2B6D1 /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE1BE9E22EEF0F800F2B6D1 /* UserDefault.swift */; };
 		C93F6992224784C1001C14A0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C93F6991224784C1001C14A0 /* AppDelegate.swift */; };
 		C93F6997224784C1001C14A0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C93F6995224784C1001C14A0 /* Main.storyboard */; };
@@ -65,34 +54,23 @@
 		16127FE822648E1900E9DF74 /* ConnectionStateHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateHelper.swift; sourceTree = "<group>"; };
 		16127FEA22648E3200E9DF74 /* UserPoolAuthProviderHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPoolAuthProviderHelper.swift; sourceTree = "<group>"; };
 		16127FEC22648FA400E9DF74 /* AppSyncErrorhandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSyncErrorhandler.swift; sourceTree = "<group>"; };
-		16379DEC22BBBDEF004D722F /* GIFCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFCategoriesCell.swift; sourceTree = "<group>"; };
-		16379DED22BBBDEF004D722F /* GIFCategoriesCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GIFCategoriesCell.xib; sourceTree = "<group>"; };
-		16379DF122BBBE2C004D722F /* GIFKeyboardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFKeyboardCell.swift; sourceTree = "<group>"; };
-		16379DF222BBBE2C004D722F /* GIFKeyboardCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GIFKeyboardCell.xib; sourceTree = "<group>"; };
+		1663630B23277F94000C9DAB /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = SOURCE_ROOT; };
 		168FCE4922802A56001CB9D5 /* ConversationsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsController.swift; sourceTree = "<group>"; };
 		168FCE4B228036B0001CB9D5 /* ConversationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCell.swift; sourceTree = "<group>"; };
 		16CDA90B229A9E1D00705044 /* ConversationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationModel.swift; sourceTree = "<group>"; };
-		16CFE54622B8D793002B5442 /* GIFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFView.swift; sourceTree = "<group>"; };
-		16CFE54722B8D793002B5442 /* GIFView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GIFView.xib; sourceTree = "<group>"; };
-		16CFE54C22B8F40F002B5442 /* GIFPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFPresenter.swift; sourceTree = "<group>"; };
 		16CFE54E22B8F43D002B5442 /* GIFModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFModel.swift; sourceTree = "<group>"; };
-		16DCA1FF22B6498100F3BEB8 /* TenorServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TenorServices.swift; sourceTree = "<group>"; };
 		16DCA20122B662CE00F3BEB8 /* ConversationListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListPresenter.swift; sourceTree = "<group>"; };
 		16DCA20322B6652800F3BEB8 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		16E5E56B2266FB0C005D0F9E /* MessageKitDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageKitDateFormatter.swift; sourceTree = "<group>"; };
 		16E5E56D22671A08005D0F9E /* MessageActionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageActionTypes.swift; sourceTree = "<group>"; };
 		16E5E5702267268E005D0F9E /* TokenModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenModel.swift; sourceTree = "<group>"; };
 		16E5E5722267755C005D0F9E /* ImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModel.swift; sourceTree = "<group>"; };
-		16EAB28A2253592D00C676B9 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		16EAB28E22535B8500C676B9 /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
 		16EAB292225494D600C676B9 /* ChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		16F5EB4B22C221F000DC38CF /* CollectionViewAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewAdapter.swift; sourceTree = "<group>"; };
 		16FCEF85228C1C6F0010BF17 /* LinkModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkModel.swift; sourceTree = "<group>"; };
-		16FCEF88228C3B1D0010BF17 /* LinkPreviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkPreviewCell.swift; sourceTree = "<group>"; };
-		16FCEF8C228C3C390010BF17 /* LinkPreviewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LinkPreviewCell.xib; sourceTree = "<group>"; };
 		1FBEC0BD10916FB58DBE9D22 /* Pods-NetworkingRetrier.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NetworkingRetrier.release.xcconfig"; path = "Pods/Target Support Files/Pods-NetworkingRetrier/Pods-NetworkingRetrier.release.xcconfig"; sourceTree = "<group>"; };
 		6BD5D7054D5EC1A0A8C963E1 /* Pods_NetworkingRetrier.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NetworkingRetrier.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BAE1BE9922EEEFD800F2B6D1 /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = SOURCE_ROOT; };
 		BAE1BE9E22EEF0F800F2B6D1 /* UserDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
 		C93F698E224784C1001C14A0 /* NetworkingRetrier.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkingRetrier.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C93F6991224784C1001C14A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -170,59 +148,6 @@
 			path = ErrorHandling;
 			sourceTree = "<group>";
 		};
-		1625CFE622BA272E0081040A /* Cells */ = {
-			isa = PBXGroup;
-			children = (
-				16379DF022BBBDF7004D722F /* GIFCategoriesCell */,
-				16379DF522BBBE33004D722F /* GIFKeyboardCell */,
-			);
-			path = Cells;
-			sourceTree = "<group>";
-		};
-		16379DF022BBBDF7004D722F /* GIFCategoriesCell */ = {
-			isa = PBXGroup;
-			children = (
-				16379DEC22BBBDEF004D722F /* GIFCategoriesCell.swift */,
-				16379DED22BBBDEF004D722F /* GIFCategoriesCell.xib */,
-			);
-			path = GIFCategoriesCell;
-			sourceTree = "<group>";
-		};
-		16379DF522BBBE33004D722F /* GIFKeyboardCell */ = {
-			isa = PBXGroup;
-			children = (
-				16379DF122BBBE2C004D722F /* GIFKeyboardCell.swift */,
-				16379DF222BBBE2C004D722F /* GIFKeyboardCell.xib */,
-			);
-			path = GIFKeyboardCell;
-			sourceTree = "<group>";
-		};
-		16CFE54522B8D658002B5442 /* CustomViews */ = {
-			isa = PBXGroup;
-			children = (
-				16CFE54A22B8E851002B5442 /* GIFView */,
-			);
-			path = CustomViews;
-			sourceTree = "<group>";
-		};
-		16CFE54A22B8E851002B5442 /* GIFView */ = {
-			isa = PBXGroup;
-			children = (
-				1625CFE622BA272E0081040A /* Cells */,
-				16CFE54622B8D793002B5442 /* GIFView.swift */,
-				16CFE54722B8D793002B5442 /* GIFView.xib */,
-			);
-			path = GIFView;
-			sourceTree = "<group>";
-		};
-		16CFE54B22B8F3C9002B5442 /* CustomViews */ = {
-			isa = PBXGroup;
-			children = (
-				16CFE54C22B8F40F002B5442 /* GIFPresenter.swift */,
-			);
-			path = CustomViews;
-			sourceTree = "<group>";
-		};
 		16DCA20522B6667100F3BEB8 /* ConversationController */ = {
 			isa = PBXGroup;
 			children = (
@@ -238,15 +163,6 @@
 				168FCE4B228036B0001CB9D5 /* ConversationCell.swift */,
 			);
 			path = Cell;
-			sourceTree = "<group>";
-		};
-		16DCA20722B666CF00F3BEB8 /* ChatController */ = {
-			isa = PBXGroup;
-			children = (
-				16FCEF87228C39650010BF17 /* LinkPreviewCell */,
-				16EAB28A2253592D00C676B9 /* ChatViewController.swift */,
-			);
-			path = ChatController;
 			sourceTree = "<group>";
 		};
 		16E5E56F22672681005D0F9E /* Models */ = {
@@ -267,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				16EAB292225494D600C676B9 /* ChatService.swift */,
-				16DCA1FF22B6498100F3BEB8 /* TenorServices.swift */,
 				16DCA20322B6652800F3BEB8 /* UserService.swift */,
 			);
 			path = Services;
@@ -279,15 +194,6 @@
 				16F5EB4B22C221F000DC38CF /* CollectionViewAdapter.swift */,
 			);
 			path = Adapters;
-			sourceTree = "<group>";
-		};
-		16FCEF87228C39650010BF17 /* LinkPreviewCell */ = {
-			isa = PBXGroup;
-			children = (
-				16FCEF88228C3B1D0010BF17 /* LinkPreviewCell.swift */,
-				16FCEF8C228C3C390010BF17 /* LinkPreviewCell.xib */,
-			);
-			path = LinkPreviewCell;
 			sourceTree = "<group>";
 		};
 		4FEFFAA9988D789B488F3C26 /* Frameworks */ = {
@@ -336,8 +242,8 @@
 		C93F6990224784C1001C14A0 /* NetworkingRetrier */ = {
 			isa = PBXGroup;
 			children = (
+				1663630B23277F94000C9DAB /* awsconfiguration.json */,
 				BAE1BE9D22EEF0F800F2B6D1 /* UserDefault */,
-				BAE1BE9922EEEFD800F2B6D1 /* awsconfiguration.json */,
 				16E5E56F22672681005D0F9E /* Models */,
 				C93F6995224784C1001C14A0 /* Main.storyboard */,
 				FC65D77D2275B36800BF6664 /* Controllers */,
@@ -367,7 +273,6 @@
 		FC65D77C2275B2E200BF6664 /* Presenters */ = {
 			isa = PBXGroup;
 			children = (
-				16CFE54B22B8F3C9002B5442 /* CustomViews */,
 				FC65D77E2275B3D800BF6664 /* BiConversationPresenter.swift */,
 				16DCA20122B662CE00F3BEB8 /* ConversationListPresenter.swift */,
 			);
@@ -377,8 +282,6 @@
 		FC65D77D2275B36800BF6664 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				16CFE54522B8D658002B5442 /* CustomViews */,
-				16DCA20722B666CF00F3BEB8 /* ChatController */,
 				16DCA20522B6667100F3BEB8 /* ConversationController */,
 			);
 			path = Controllers;
@@ -444,11 +347,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BAE1BE9A22EEEFD800F2B6D1 /* awsconfiguration.json in Resources */,
-				16379DEF22BBBDEF004D722F /* GIFCategoriesCell.xib in Resources */,
-				16FCEF8D228C3C390010BF17 /* LinkPreviewCell.xib in Resources */,
-				16CFE54922B8D793002B5442 /* GIFView.xib in Resources */,
-				16379DF422BBBE2C004D722F /* GIFKeyboardCell.xib in Resources */,
+				1663630C23277F94000C9DAB /* awsconfiguration.json in Resources */,
 				C93F699C224784CA001C14A0 /* LaunchScreen.storyboard in Resources */,
 				C93F6999224784CA001C14A0 /* Assets.xcassets in Resources */,
 				C93F6997224784C1001C14A0 /* Main.storyboard in Resources */,
@@ -481,31 +380,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NetworkingRetrier/Pods-NetworkingRetrier-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/AWSAppSync/AWSAppSync.framework",
-				"${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
-				"${BUILT_PRODUCTS_DIR}/InputBarAccessoryView/InputBarAccessoryView.framework",
-				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
-				"${BUILT_PRODUCTS_DIR}/MessageKit/MessageKit.framework",
-				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftLinkPreview/SwiftLinkPreview.framework",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NetworkingRetrier/Pods-NetworkingRetrier-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSAppSync.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InputBarAccessoryView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MessageKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLite.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftLinkPreview.framework",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NetworkingRetrier/Pods-NetworkingRetrier-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -520,25 +400,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				BAE1BE9F22EEF0F800F2B6D1 /* UserDefault.swift in Sources */,
-				16FCEF8A228C3B1D0010BF17 /* LinkPreviewCell.swift in Sources */,
 				168FCE4A22802A56001CB9D5 /* ConversationsController.swift in Sources */,
 				16E5E5712267268E005D0F9E /* TokenModel.swift in Sources */,
 				C9B16086224CB5AE00A1A859 /* AWSAmplifyHelper.swift in Sources */,
 				16127FED22648FA400E9DF74 /* AppSyncErrorhandler.swift in Sources */,
-				16379DF322BBBE2C004D722F /* GIFKeyboardCell.swift in Sources */,
 				16EAB28F22535B8500C676B9 /* MessageModel.swift in Sources */,
 				16CFE54F22B8F43D002B5442 /* GIFModel.swift in Sources */,
 				C986A5062250A4F600F1BB0B /* API.swift in Sources */,
-				16379DEE22BBBDEF004D722F /* GIFCategoriesCell.swift in Sources */,
 				160C90312295749D009F3CF8 /* DBHelperExtention.swift in Sources */,
 				16127FE922648E1900E9DF74 /* ConnectionStateHelper.swift in Sources */,
 				16E5E56C2266FB0C005D0F9E /* MessageKitDateFormatter.swift in Sources */,
 				16127FE62264841200E9DF74 /* MsgType.swift in Sources */,
-				16CFE54822B8D793002B5442 /* GIFView.swift in Sources */,
 				16EAB293225494D600C676B9 /* ChatService.swift in Sources */,
 				16DCA20422B6652800F3BEB8 /* UserService.swift in Sources */,
 				FC65D77F2275B3D800BF6664 /* BiConversationPresenter.swift in Sources */,
-				16DCA20022B6498100F3BEB8 /* TenorServices.swift in Sources */,
 				168FCE4C228036B0001CB9D5 /* ConversationCell.swift in Sources */,
 				1607EEE622967AE600DD9521 /* Utlities.swift in Sources */,
 				16127FEB22648E3200E9DF74 /* UserPoolAuthProviderHelper.swift in Sources */,
@@ -546,12 +421,10 @@
 				16127FE122647F7000E9DF74 /* AWSCustomErrors.swift in Sources */,
 				160C902F22957210009F3CF8 /* DBHelper.swift in Sources */,
 				16E5E56E22671A08005D0F9E /* MessageActionTypes.swift in Sources */,
-				16EAB28C2253592D00C676B9 /* ChatViewController.swift in Sources */,
 				16CDA90C229A9E1D00705044 /* ConversationModel.swift in Sources */,
 				FC65D778226F499600BF6664 /* MediaModel.swift in Sources */,
 				16127FE4226483B000E9DF74 /* Contants.swift in Sources */,
 				16F5EB4C22C221F000DC38CF /* CollectionViewAdapter.swift in Sources */,
-				16CFE54D22B8F40F002B5442 /* GIFPresenter.swift in Sources */,
 				C93F6992224784C1001C14A0 /* AppDelegate.swift in Sources */,
 				16FCEF86228C1C6F0010BF17 /* LinkModel.swift in Sources */,
 				16E5E5732267755C005D0F9E /* ImageModel.swift in Sources */,

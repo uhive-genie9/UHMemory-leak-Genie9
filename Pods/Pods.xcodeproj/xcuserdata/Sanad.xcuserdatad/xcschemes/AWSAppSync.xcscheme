@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1020"
+   LastUpgradeVersion = "1100"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2B238CFC5F80C28437E1629FD483F747"
+               BlueprintIdentifier = "35469DB1FF46D168C3CD85F57FE6D2EA"
                BuildableName = "AWSAppSync.framework"
                BlueprintName = "AWSAppSync"
                ReferencedContainer = "container:Pods.xcodeproj">

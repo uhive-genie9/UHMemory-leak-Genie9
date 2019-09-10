@@ -5,8 +5,8 @@ import AWSAppSync
 public struct MessageInput: GraphQLMapConvertible {
   public var graphQLMap: GraphQLMap
 
-  public init(conversationId: Int? = nil, localId: Int, mType: Int, receiverId: Int? = nil, text: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-    graphQLMap = ["conversation_id": conversationId, "local_id": localId, "m_type": mType, "receiver_id": receiverId, "text": text, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId]
+  public init(conversationId: Int? = nil, localId: Int, mType: Int, receiverId: Int? = nil, text: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+    graphQLMap = ["conversation_id": conversationId, "local_id": localId, "m_type": mType, "receiver_id": receiverId, "text": text, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId]
   }
 
   /// n/a , is optional in case of when you startConversation with a message
@@ -30,16 +30,16 @@ public struct MessageInput: GraphQLMapConvertible {
   }
 
   /// Message type Enum values : <br>
-  /// ############################## 0 : TEXT <br>
-  /// ############################## 1 : VIDEO <br>
-  /// ############################## 2 : PICTURE <br>
-  /// ############################## 3 : DOCUMENT <br>
-  /// ############################## 4 : LINK <br>
-  /// ############################## 5 : LINK_YOUTUBE <br>
-  /// ############################## 6 : GIF <br>
-  /// ############################## 7 : GIF_TENOR <br>
-  /// ############################## 8 : AUDIO <br>
-  /// ############################## 9 : LOCATION
+  /// ################################# 0 : TEXT <br>
+  /// ################################# 1 : VIDEO <br>
+  /// ################################# 2 : PICTURE <br>
+  /// ################################# 3 : DOCUMENT <br>
+  /// ################################# 4 : LINK <br>
+  /// ################################# 5 : LINK_YOUTUBE <br>
+  /// ################################# 6 : GIF <br>
+  /// ################################# 7 : GIF_TENOR <br>
+  /// ################################# 8 : AUDIO <br>
+  /// ################################# 9 : LOCATION
   public var mType: Int {
     get {
       return graphQLMap["m_type"] as! Int
@@ -100,12 +100,12 @@ public struct MessageInput: GraphQLMapConvertible {
   }
 
   /// URL preview thumb
-  public var urlThumbUrl: String? {
+  public var thumbUrl: String? {
     get {
-      return graphQLMap["url_thumb_url"] as! String?
+      return graphQLMap["thumb_url"] as! String?
     }
     set {
-      graphQLMap.updateValue(newValue, forKey: "url_thumb_url")
+      graphQLMap.updateValue(newValue, forKey: "thumb_url")
     }
   }
 
@@ -147,9 +147,56 @@ public struct GroupMemberInput: GraphQLMapConvertible {
   }
 }
 
+public final class DeleteConversationsMutation: GraphQLMutation {
+  public static let operationString =
+    "mutation DeleteConversations($user_id: Int!, $conversations_ids: [Int!]) {\n  deleteConversations(user_id: $user_id, conversations_ids: $conversations_ids)\n}"
+
+  public var user_id: Int
+  public var conversations_ids: [Int]?
+
+  public init(user_id: Int, conversations_ids: [Int]?) {
+    self.user_id = user_id
+    self.conversations_ids = conversations_ids
+  }
+
+  public var variables: GraphQLMap? {
+    return ["user_id": user_id, "conversations_ids": conversations_ids]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes = ["Mutation"]
+
+    public static let selections: [GraphQLSelection] = [
+      GraphQLField("deleteConversations", arguments: ["user_id": GraphQLVariable("user_id"), "conversations_ids": GraphQLVariable("conversations_ids")], type: .scalar(Bool.self)),
+    ]
+
+    public var snapshot: Snapshot
+
+    public init(snapshot: Snapshot) {
+      self.snapshot = snapshot
+    }
+
+    public init(deleteConversations: Bool? = nil) {
+      self.init(snapshot: ["__typename": "Mutation", "deleteConversations": deleteConversations])
+    }
+
+    /// Deleting the conversation will not remove it from the database, it will only set a timestamp of the deletion time <br>
+    /// # which will not allow the user to fetch messages before it. <br>
+    /// # When a conversation is deleted it will not be listed in user's conversations until a new action(like a new message) is emerged
+    public var deleteConversations: Bool? {
+      get {
+        return snapshot["deleteConversations"] as? Bool
+      }
+      set {
+        snapshot.updateValue(newValue, forKey: "deleteConversations")
+      }
+    }
+  }
+}
+
 public final class AddMessageMutation: GraphQLMutation {
   public static let operationString =
-    "mutation AddMessage($conversation_id: Int!, $local_id: Int!, $m_type: Int!, $receiver_id: Int, $text: String, $url: String, $url_domain: String, $url_text: String, $url_thumb_url: String, $url_title: String, $user_id: Int!) {\n  addMessage(conversation_id: $conversation_id, local_id: $local_id, m_type: $m_type, receiver_id: $receiver_id, text: $text, url: $url, url_domain: $url_domain, url_text: $url_text, url_thumb_url: $url_thumb_url, url_title: $url_title, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation AddMessage($conversation_id: Int!, $local_id: Int!, $m_type: Int!, $receiver_id: Int, $text: String, $url: String, $url_domain: String, $url_text: String, $thumb_url: String, $url_title: String, $user_id: Int!) {\n  addMessage(conversation_id: $conversation_id, local_id: $local_id, m_type: $m_type, receiver_id: $receiver_id, text: $text, url: $url, url_domain: $url_domain, url_text: $url_text, thumb_url: $thumb_url, url_title: $url_title, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var conversation_id: Int
   public var local_id: Int
@@ -159,11 +206,11 @@ public final class AddMessageMutation: GraphQLMutation {
   public var url: String?
   public var url_domain: String?
   public var url_text: String?
-  public var url_thumb_url: String?
+  public var thumb_url: String?
   public var url_title: String?
   public var user_id: Int
 
-  public init(conversation_id: Int, local_id: Int, m_type: Int, receiver_id: Int? = nil, text: String? = nil, url: String? = nil, url_domain: String? = nil, url_text: String? = nil, url_thumb_url: String? = nil, url_title: String? = nil, user_id: Int) {
+  public init(conversation_id: Int, local_id: Int, m_type: Int, receiver_id: Int? = nil, text: String? = nil, url: String? = nil, url_domain: String? = nil, url_text: String? = nil, thumb_url: String? = nil, url_title: String? = nil, user_id: Int) {
     self.conversation_id = conversation_id
     self.local_id = local_id
     self.m_type = m_type
@@ -172,20 +219,20 @@ public final class AddMessageMutation: GraphQLMutation {
     self.url = url
     self.url_domain = url_domain
     self.url_text = url_text
-    self.url_thumb_url = url_thumb_url
+    self.thumb_url = thumb_url
     self.url_title = url_title
     self.user_id = user_id
   }
 
   public var variables: GraphQLMap? {
-    return ["conversation_id": conversation_id, "local_id": local_id, "m_type": m_type, "receiver_id": receiver_id, "text": text, "url": url, "url_domain": url_domain, "url_text": url_text, "url_thumb_url": url_thumb_url, "url_title": url_title, "user_id": user_id]
+    return ["conversation_id": conversation_id, "local_id": local_id, "m_type": m_type, "receiver_id": receiver_id, "text": text, "url": url, "url_domain": url_domain, "url_text": url_text, "thumb_url": thumb_url, "url_title": url_title, "user_id": user_id]
   }
 
   public struct Data: GraphQLSelectionSet {
     public static let possibleTypes = ["Mutation"]
 
     public static let selections: [GraphQLSelection] = [
-      GraphQLField("addMessage", arguments: ["conversation_id": GraphQLVariable("conversation_id"), "local_id": GraphQLVariable("local_id"), "m_type": GraphQLVariable("m_type"), "receiver_id": GraphQLVariable("receiver_id"), "text": GraphQLVariable("text"), "url": GraphQLVariable("url"), "url_domain": GraphQLVariable("url_domain"), "url_text": GraphQLVariable("url_text"), "url_thumb_url": GraphQLVariable("url_thumb_url"), "url_title": GraphQLVariable("url_title"), "user_id": GraphQLVariable("user_id")], type: .object(AddMessage.selections)),
+      GraphQLField("addMessage", arguments: ["conversation_id": GraphQLVariable("conversation_id"), "local_id": GraphQLVariable("local_id"), "m_type": GraphQLVariable("m_type"), "receiver_id": GraphQLVariable("receiver_id"), "text": GraphQLVariable("text"), "url": GraphQLVariable("url"), "url_domain": GraphQLVariable("url_domain"), "url_text": GraphQLVariable("url_text"), "thumb_url": GraphQLVariable("thumb_url"), "url_title": GraphQLVariable("url_title"), "user_id": GraphQLVariable("user_id")], type: .object(AddMessage.selections)),
     ]
 
     public var snapshot: Snapshot
@@ -241,11 +288,11 @@ public final class AddMessageMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -312,11 +359,16 @@ public final class AddMessageMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -325,8 +377,8 @@ public final class AddMessageMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -349,7 +401,7 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -360,9 +412,9 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -380,7 +432,7 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -391,9 +443,9 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -401,13 +453,63 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -423,11 +525,11 @@ public final class AddMessageMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -438,8 +540,8 @@ public final class AddMessageMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -482,16 +584,16 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -512,8 +614,8 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -534,9 +636,9 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -554,7 +656,6 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -565,7 +666,6 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -576,18 +676,16 @@ public final class AddMessageMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -613,6 +711,8 @@ public final class AddMessageMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -623,8 +723,8 @@ public final class AddMessageMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -633,6 +733,24 @@ public final class AddMessageMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -668,11 +786,11 @@ public final class AddMessageMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -683,8 +801,8 @@ public final class AddMessageMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -727,16 +845,16 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -757,8 +875,8 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -779,9 +897,9 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -799,7 +917,6 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -810,7 +927,6 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -821,18 +937,16 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -934,8 +1048,8 @@ public final class AddMessageMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -989,7 +1103,7 @@ public final class AddMessageMutation: GraphQLMutation {
 
 public final class AddMessageV2Mutation: GraphQLMutation {
   public static let operationString =
-    "mutation AddMessageV2($conv_type: Int!, $conversation_id: Int!, $local_id: Int!, $m_type: Int!, $receiver_id: Int, $text: String, $url: String, $url_domain: String, $url_text: String, $url_thumb_url: String, $url_title: String, $user_id: Int!) {\n  addMessage_v2(conv_type: $conv_type, conversation_id: $conversation_id, local_id: $local_id, m_type: $m_type, receiver_id: $receiver_id, text: $text, url: $url, url_domain: $url_domain, url_text: $url_text, url_thumb_url: $url_thumb_url, url_title: $url_title, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation AddMessageV2($conv_type: Int!, $conversation_id: Int!, $local_id: Int!, $m_type: Int!, $receiver_id: Int, $text: String, $url: String, $url_domain: String, $url_text: String, $thumb_url: String, $url_title: String, $user_id: Int!) {\n  addMessage_v2(conv_type: $conv_type, conversation_id: $conversation_id, local_id: $local_id, m_type: $m_type, receiver_id: $receiver_id, text: $text, url: $url, url_domain: $url_domain, url_text: $url_text, thumb_url: $thumb_url, url_title: $url_title, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var conv_type: Int
   public var conversation_id: Int
@@ -1000,11 +1114,11 @@ public final class AddMessageV2Mutation: GraphQLMutation {
   public var url: String?
   public var url_domain: String?
   public var url_text: String?
-  public var url_thumb_url: String?
+  public var thumb_url: String?
   public var url_title: String?
   public var user_id: Int
 
-  public init(conv_type: Int, conversation_id: Int, local_id: Int, m_type: Int, receiver_id: Int? = nil, text: String? = nil, url: String? = nil, url_domain: String? = nil, url_text: String? = nil, url_thumb_url: String? = nil, url_title: String? = nil, user_id: Int) {
+  public init(conv_type: Int, conversation_id: Int, local_id: Int, m_type: Int, receiver_id: Int? = nil, text: String? = nil, url: String? = nil, url_domain: String? = nil, url_text: String? = nil, thumb_url: String? = nil, url_title: String? = nil, user_id: Int) {
     self.conv_type = conv_type
     self.conversation_id = conversation_id
     self.local_id = local_id
@@ -1014,20 +1128,20 @@ public final class AddMessageV2Mutation: GraphQLMutation {
     self.url = url
     self.url_domain = url_domain
     self.url_text = url_text
-    self.url_thumb_url = url_thumb_url
+    self.thumb_url = thumb_url
     self.url_title = url_title
     self.user_id = user_id
   }
 
   public var variables: GraphQLMap? {
-    return ["conv_type": conv_type, "conversation_id": conversation_id, "local_id": local_id, "m_type": m_type, "receiver_id": receiver_id, "text": text, "url": url, "url_domain": url_domain, "url_text": url_text, "url_thumb_url": url_thumb_url, "url_title": url_title, "user_id": user_id]
+    return ["conv_type": conv_type, "conversation_id": conversation_id, "local_id": local_id, "m_type": m_type, "receiver_id": receiver_id, "text": text, "url": url, "url_domain": url_domain, "url_text": url_text, "thumb_url": thumb_url, "url_title": url_title, "user_id": user_id]
   }
 
   public struct Data: GraphQLSelectionSet {
     public static let possibleTypes = ["Mutation"]
 
     public static let selections: [GraphQLSelection] = [
-      GraphQLField("addMessage_v2", arguments: ["conv_type": GraphQLVariable("conv_type"), "conversation_id": GraphQLVariable("conversation_id"), "local_id": GraphQLVariable("local_id"), "m_type": GraphQLVariable("m_type"), "receiver_id": GraphQLVariable("receiver_id"), "text": GraphQLVariable("text"), "url": GraphQLVariable("url"), "url_domain": GraphQLVariable("url_domain"), "url_text": GraphQLVariable("url_text"), "url_thumb_url": GraphQLVariable("url_thumb_url"), "url_title": GraphQLVariable("url_title"), "user_id": GraphQLVariable("user_id")], type: .object(AddMessageV2.selections)),
+      GraphQLField("addMessage_v2", arguments: ["conv_type": GraphQLVariable("conv_type"), "conversation_id": GraphQLVariable("conversation_id"), "local_id": GraphQLVariable("local_id"), "m_type": GraphQLVariable("m_type"), "receiver_id": GraphQLVariable("receiver_id"), "text": GraphQLVariable("text"), "url": GraphQLVariable("url"), "url_domain": GraphQLVariable("url_domain"), "url_text": GraphQLVariable("url_text"), "thumb_url": GraphQLVariable("thumb_url"), "url_title": GraphQLVariable("url_title"), "user_id": GraphQLVariable("user_id")], type: .object(AddMessageV2.selections)),
     ]
 
     public var snapshot: Snapshot
@@ -1083,11 +1197,11 @@ public final class AddMessageV2Mutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -1154,11 +1268,16 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -1167,8 +1286,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -1191,7 +1310,7 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -1202,9 +1321,9 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -1222,7 +1341,7 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -1233,9 +1352,9 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -1243,13 +1362,63 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -1265,11 +1434,11 @@ public final class AddMessageV2Mutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -1280,8 +1449,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -1324,16 +1493,16 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -1354,8 +1523,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -1376,9 +1545,9 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -1396,7 +1565,6 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -1407,7 +1575,6 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -1418,18 +1585,16 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -1455,6 +1620,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -1465,8 +1632,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -1475,6 +1642,24 @@ public final class AddMessageV2Mutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -1510,11 +1695,11 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -1525,8 +1710,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -1569,16 +1754,16 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -1599,8 +1784,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -1621,9 +1806,9 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -1641,7 +1826,6 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -1652,7 +1836,6 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -1663,18 +1846,16 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -1776,8 +1957,8 @@ public final class AddMessageV2Mutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -1831,23 +2012,25 @@ public final class AddMessageV2Mutation: GraphQLMutation {
 
 public final class AddMessageV3Mutation: GraphQLMutation {
   public static let operationString =
-    "mutation AddMessageV3($message: MessageInput) {\n  addMessage_v3(message: $message) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation AddMessageV3($message: MessageInput, $receiver_id: Int) {\n  addMessage_v3(message: $message, receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var message: MessageInput?
+  public var receiver_id: Int?
 
-  public init(message: MessageInput? = nil) {
+  public init(message: MessageInput? = nil, receiver_id: Int? = nil) {
     self.message = message
+    self.receiver_id = receiver_id
   }
 
   public var variables: GraphQLMap? {
-    return ["message": message]
+    return ["message": message, "receiver_id": receiver_id]
   }
 
   public struct Data: GraphQLSelectionSet {
     public static let possibleTypes = ["Mutation"]
 
     public static let selections: [GraphQLSelection] = [
-      GraphQLField("addMessage_v3", arguments: ["message": GraphQLVariable("message")], type: .object(AddMessageV3.selections)),
+      GraphQLField("addMessage_v3", arguments: ["message": GraphQLVariable("message"), "receiver_id": GraphQLVariable("receiver_id")], type: .object(AddMessageV3.selections)),
     ]
 
     public var snapshot: Snapshot
@@ -1903,11 +2086,11 @@ public final class AddMessageV3Mutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -1974,11 +2157,16 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -1987,8 +2175,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -2011,7 +2199,7 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -2022,9 +2210,9 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -2042,7 +2230,7 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -2053,9 +2241,9 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -2063,13 +2251,63 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -2085,11 +2323,11 @@ public final class AddMessageV3Mutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -2100,8 +2338,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -2144,16 +2382,16 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -2174,8 +2412,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -2196,9 +2434,9 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -2216,7 +2454,6 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -2227,7 +2464,6 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -2238,18 +2474,16 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -2275,6 +2509,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -2285,8 +2521,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -2295,6 +2531,24 @@ public final class AddMessageV3Mutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -2330,11 +2584,11 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -2345,8 +2599,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -2389,16 +2643,16 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -2419,8 +2673,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -2441,9 +2695,9 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -2461,7 +2715,6 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -2472,7 +2725,6 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -2483,18 +2735,16 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -2596,8 +2846,8 @@ public final class AddMessageV3Mutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -2651,7 +2901,7 @@ public final class AddMessageV3Mutation: GraphQLMutation {
 
 public final class AddUserGroupConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation AddUserGroupConversation($group_conversation_id: Int!, $receiver_id: Int!, $user_id: Int!) {\n  addUserGroupConversation(group_conversation_id: $group_conversation_id, receiver_id: $receiver_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation AddUserGroupConversation($group_conversation_id: Int!, $receiver_id: Int!, $user_id: Int!) {\n  addUserGroupConversation(group_conversation_id: $group_conversation_id, receiver_id: $receiver_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_conversation_id: Int
   public var receiver_id: Int
@@ -2726,11 +2976,11 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -2797,11 +3047,16 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -2810,8 +3065,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -2834,7 +3089,7 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -2845,9 +3100,9 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -2865,7 +3120,7 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -2876,9 +3131,9 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -2886,13 +3141,63 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -2908,11 +3213,11 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -2923,8 +3228,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -2967,16 +3272,16 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -2997,8 +3302,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -3019,9 +3324,9 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -3039,7 +3344,6 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -3050,7 +3354,6 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -3061,18 +3364,16 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -3098,6 +3399,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -3108,8 +3411,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -3118,6 +3421,24 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -3153,11 +3474,11 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -3168,8 +3489,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -3212,16 +3533,16 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -3242,8 +3563,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -3264,9 +3585,9 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -3284,7 +3605,6 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -3295,7 +3615,6 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -3306,18 +3625,16 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -3419,8 +3736,8 @@ public final class AddUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -3521,7 +3838,7 @@ public final class ChangeOnlineStatusMutation: GraphQLMutation {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("is_online", type: .scalar(Bool.self)),
-        GraphQLField("last_seen", type: .scalar(GraphQLID.self)),
+        GraphQLField("last_seen", type: .scalar(String.self)),
       ]
 
       public var snapshot: Snapshot
@@ -3530,7 +3847,7 @@ public final class ChangeOnlineStatusMutation: GraphQLMutation {
         self.snapshot = snapshot
       }
 
-      public init(isOnline: Bool? = nil, lastSeen: GraphQLID? = nil) {
+      public init(isOnline: Bool? = nil, lastSeen: String? = nil) {
         self.init(snapshot: ["__typename": "SignalOnlineStatus", "is_online": isOnline, "last_seen": lastSeen])
       }
 
@@ -3554,9 +3871,9 @@ public final class ChangeOnlineStatusMutation: GraphQLMutation {
       }
 
       /// Unix timestamp in mille-seconds
-      public var lastSeen: GraphQLID? {
+      public var lastSeen: String? {
         get {
-          return snapshot["last_seen"] as? GraphQLID
+          return snapshot["last_seen"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "last_seen")
@@ -3568,7 +3885,7 @@ public final class ChangeOnlineStatusMutation: GraphQLMutation {
 
 public final class LeaveGroupConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation LeaveGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  leaveGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation LeaveGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  leaveGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_conversation_id: Int
   public var user_id: Int
@@ -3641,11 +3958,11 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -3712,11 +4029,16 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -3725,8 +4047,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -3749,7 +4071,7 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -3760,9 +4082,9 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -3780,7 +4102,7 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -3791,9 +4113,9 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -3801,13 +4123,63 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -3823,11 +4195,11 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -3838,8 +4210,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -3882,16 +4254,16 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -3912,8 +4284,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -3934,9 +4306,9 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -3954,7 +4326,6 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -3965,7 +4336,6 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -3976,18 +4346,16 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -4013,6 +4381,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -4023,8 +4393,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -4033,6 +4403,24 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -4068,11 +4456,11 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -4083,8 +4471,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -4127,16 +4515,16 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -4157,8 +4545,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -4179,9 +4567,9 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -4199,7 +4587,6 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -4210,7 +4597,6 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -4221,18 +4607,16 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -4334,8 +4718,8 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -4389,7 +4773,7 @@ public final class LeaveGroupConversationMutation: GraphQLMutation {
 
 public final class NewGroupAddedMutation: GraphQLMutation {
   public static let operationString =
-    "mutation NewGroupAdded($group_id: Int!, $receiver_id: Int!) {\n  newGroupAdded(group_id: $group_id, receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation NewGroupAdded($group_id: Int!, $receiver_id: Int!) {\n  newGroupAdded(group_id: $group_id, receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_id: Int
   public var receiver_id: Int
@@ -4421,8 +4805,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
     }
 
     /// ***
-    /// ############################## Group mutations
-    /// ############################## ***
+    /// ################################# Group mutations
+    /// ################################# ***
     public var newGroupAdded: NewGroupAdded? {
       get {
         return (snapshot["newGroupAdded"] as? Snapshot).flatMap { NewGroupAdded(snapshot: $0) }
@@ -4465,11 +4849,11 @@ public final class NewGroupAddedMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -4536,11 +4920,16 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -4549,8 +4938,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -4573,7 +4962,7 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -4584,9 +4973,9 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -4604,7 +4993,7 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -4615,9 +5004,9 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -4625,13 +5014,63 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -4647,11 +5086,11 @@ public final class NewGroupAddedMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -4662,8 +5101,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -4706,16 +5145,16 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -4736,8 +5175,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -4758,9 +5197,9 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -4778,7 +5217,6 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -4789,7 +5227,6 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -4800,18 +5237,16 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -4837,6 +5272,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -4847,8 +5284,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -4857,6 +5294,24 @@ public final class NewGroupAddedMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -4892,11 +5347,11 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -4907,8 +5362,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -4951,16 +5406,16 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -4981,8 +5436,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -5003,9 +5458,9 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -5023,7 +5478,6 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -5034,7 +5488,6 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -5045,18 +5498,16 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -5158,8 +5609,8 @@ public final class NewGroupAddedMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -5213,7 +5664,7 @@ public final class NewGroupAddedMutation: GraphQLMutation {
 
 public final class PublishTypingMutation: GraphQLMutation {
   public static let operationString =
-    "mutation PublishTyping($action: Int!, $conversation_id: Int!, $receiver_id: Int!, $user_id: Int!) {\n  publishTyping(action: $action, conversation_id: $conversation_id, receiver_id: $receiver_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation PublishTyping($action: Int!, $conversation_id: Int!, $receiver_id: Int!, $user_id: Int!) {\n  publishTyping(action: $action, conversation_id: $conversation_id, receiver_id: $receiver_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var action: Int
   public var conversation_id: Int
@@ -5291,11 +5742,11 @@ public final class PublishTypingMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -5362,11 +5813,16 @@ public final class PublishTypingMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -5375,8 +5831,8 @@ public final class PublishTypingMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -5399,7 +5855,7 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -5410,9 +5866,9 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -5430,7 +5886,7 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -5441,9 +5897,9 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -5451,13 +5907,63 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -5473,11 +5979,11 @@ public final class PublishTypingMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -5488,8 +5994,8 @@ public final class PublishTypingMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -5532,16 +6038,16 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -5562,8 +6068,8 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -5584,9 +6090,9 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -5604,7 +6110,6 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -5615,7 +6120,6 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -5626,18 +6130,16 @@ public final class PublishTypingMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -5663,6 +6165,8 @@ public final class PublishTypingMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -5673,8 +6177,8 @@ public final class PublishTypingMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -5683,6 +6187,24 @@ public final class PublishTypingMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -5718,11 +6240,11 @@ public final class PublishTypingMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -5733,8 +6255,8 @@ public final class PublishTypingMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -5777,16 +6299,16 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -5807,8 +6329,8 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -5829,9 +6351,9 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -5849,7 +6371,6 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -5860,7 +6381,6 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -5871,18 +6391,16 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -5984,8 +6502,8 @@ public final class PublishTypingMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -6039,7 +6557,7 @@ public final class PublishTypingMutation: GraphQLMutation {
 
 public final class PublishTypingGroupConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation PublishTypingGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  publishTypingGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation PublishTypingGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  publishTypingGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_conversation_id: Int
   public var user_id: Int
@@ -6112,11 +6630,11 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -6183,11 +6701,16 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -6196,8 +6719,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -6220,7 +6743,7 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -6231,9 +6754,9 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -6251,7 +6774,7 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -6262,9 +6785,9 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -6272,13 +6795,63 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -6294,11 +6867,11 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -6309,8 +6882,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -6353,16 +6926,16 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -6383,8 +6956,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -6405,9 +6978,9 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -6425,7 +6998,6 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -6436,7 +7008,6 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -6447,18 +7018,16 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -6484,6 +7053,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -6494,8 +7065,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -6504,6 +7075,24 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -6539,11 +7128,11 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -6554,8 +7143,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -6598,16 +7187,16 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -6628,8 +7217,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -6650,9 +7239,9 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -6670,7 +7259,6 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -6681,7 +7269,6 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -6692,18 +7279,16 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -6805,8 +7390,8 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -6860,7 +7445,7 @@ public final class PublishTypingGroupConversationMutation: GraphQLMutation {
 
 public final class RemoveUserGroupConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation RemoveUserGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  removeUserGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation RemoveUserGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  removeUserGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_conversation_id: Int
   public var user_id: Int
@@ -6933,11 +7518,11 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -7004,11 +7589,16 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -7017,8 +7607,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -7041,7 +7631,7 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -7052,9 +7642,9 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -7072,7 +7662,7 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -7083,9 +7673,9 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -7093,13 +7683,63 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -7115,11 +7755,11 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -7130,8 +7770,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -7174,16 +7814,16 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -7204,8 +7844,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -7226,9 +7866,9 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -7246,7 +7886,6 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -7257,7 +7896,6 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -7268,18 +7906,16 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -7305,6 +7941,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -7315,8 +7953,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -7325,6 +7963,24 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -7360,11 +8016,11 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -7375,8 +8031,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -7419,16 +8075,16 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -7449,8 +8105,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -7471,9 +8127,9 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -7491,7 +8147,6 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -7502,7 +8157,6 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -7513,18 +8167,16 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -7626,8 +8278,8 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -7681,7 +8333,7 @@ public final class RemoveUserGroupConversationMutation: GraphQLMutation {
 
 public final class SetSeenConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation SetSeenConversation($conversation_id: Int!, $last_msg_seen_id: Int!, $receiver_id: Int!) {\n  setSeenConversation(conversation_id: $conversation_id, last_msg_seen_id: $last_msg_seen_id, receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation SetSeenConversation($conversation_id: Int!, $last_msg_seen_id: Int!, $receiver_id: Int!) {\n  setSeenConversation(conversation_id: $conversation_id, last_msg_seen_id: $last_msg_seen_id, receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var conversation_id: Int
   public var last_msg_seen_id: Int
@@ -7757,11 +8409,11 @@ public final class SetSeenConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -7828,11 +8480,16 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -7841,8 +8498,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -7865,7 +8522,7 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -7876,9 +8533,9 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -7896,7 +8553,7 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -7907,9 +8564,9 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -7917,13 +8574,63 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -7939,11 +8646,11 @@ public final class SetSeenConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -7954,8 +8661,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -7998,16 +8705,16 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -8028,8 +8735,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -8050,9 +8757,9 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -8070,7 +8777,6 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -8081,7 +8787,6 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -8092,18 +8797,16 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -8129,6 +8832,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -8139,8 +8844,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -8149,6 +8854,24 @@ public final class SetSeenConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -8184,11 +8907,11 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -8199,8 +8922,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -8243,16 +8966,16 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -8273,8 +8996,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -8295,9 +9018,9 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -8315,7 +9038,6 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -8326,7 +9048,6 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -8337,18 +9058,16 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -8450,8 +9169,8 @@ public final class SetSeenConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -8505,7 +9224,7 @@ public final class SetSeenConversationMutation: GraphQLMutation {
 
 public final class StartConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation StartConversation($message: MessageInput, $receiver_id: Int!, $sender_id: Int!) {\n  startConversation(message: $message, receiver_id: $receiver_id, sender_id: $sender_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation StartConversation($message: MessageInput, $receiver_id: Int!, $sender_id: Int!) {\n  startConversation(message: $message, receiver_id: $receiver_id, sender_id: $sender_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var message: MessageInput?
   public var receiver_id: Int
@@ -8539,7 +9258,7 @@ public final class StartConversationMutation: GraphQLMutation {
     }
 
     /// Start a conversation between two users <br>
-    /// ########################## The receiver user will get be notified of new conversation through the subscription <br>
+    /// ############################# The receiver user will get be notified of new conversation through the subscription <br>
     public var startConversation: StartConversation? {
       get {
         return (snapshot["startConversation"] as? Snapshot).flatMap { StartConversation(snapshot: $0) }
@@ -8582,11 +9301,11 @@ public final class StartConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -8653,11 +9372,16 @@ public final class StartConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -8666,8 +9390,8 @@ public final class StartConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -8690,7 +9414,7 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -8701,9 +9425,9 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -8721,7 +9445,7 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -8732,9 +9456,9 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -8742,13 +9466,63 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -8764,11 +9538,11 @@ public final class StartConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -8779,8 +9553,8 @@ public final class StartConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -8823,16 +9597,16 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -8853,8 +9627,8 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -8875,9 +9649,9 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -8895,7 +9669,6 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -8906,7 +9679,6 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -8917,18 +9689,16 @@ public final class StartConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -8954,6 +9724,8 @@ public final class StartConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -8964,8 +9736,8 @@ public final class StartConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -8974,6 +9746,24 @@ public final class StartConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -9009,11 +9799,11 @@ public final class StartConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -9024,8 +9814,8 @@ public final class StartConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -9068,16 +9858,16 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -9098,8 +9888,8 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -9120,9 +9910,9 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -9140,7 +9930,6 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -9151,7 +9940,6 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -9162,18 +9950,16 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -9275,8 +10061,8 @@ public final class StartConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -9595,7 +10381,7 @@ public final class StartSupportConversationMutation: GraphQLMutation {
 
 public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
   public static let operationString =
-    "mutation ToggleAdminGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  toggleAdminGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "mutation ToggleAdminGroupConversation($group_conversation_id: Int!, $user_id: Int!) {\n  toggleAdminGroupConversation(group_conversation_id: $group_conversation_id, user_id: $user_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var group_conversation_id: Int
   public var user_id: Int
@@ -9668,11 +10454,11 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -9739,11 +10525,16 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -9752,8 +10543,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -9776,7 +10567,7 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -9787,9 +10578,9 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -9807,7 +10598,7 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -9818,9 +10609,9 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -9828,13 +10619,63 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -9850,11 +10691,11 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -9865,8 +10706,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -9909,16 +10750,16 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -9939,8 +10780,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -9961,9 +10802,9 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -9981,7 +10822,6 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -9992,7 +10832,6 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -10003,18 +10842,16 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -10040,6 +10877,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -10050,8 +10889,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -10060,6 +10899,24 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -10095,11 +10952,11 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -10110,8 +10967,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -10154,16 +11011,16 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -10184,8 +11041,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -10206,9 +11063,9 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -10226,7 +11083,6 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -10237,7 +11093,6 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -10248,18 +11103,16 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -10361,8 +11214,8 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int
@@ -10408,6 +11261,612 @@ public final class ToggleAdminGroupConversationMutation: GraphQLMutation {
           set {
             snapshot.updateValue(newValue, forKey: "user_id")
           }
+        }
+      }
+    }
+  }
+}
+
+public final class SearchQuery: GraphQLQuery {
+  public static let operationString =
+    "query Search($user_id: Int, $search_key: String, $fetch_count: Int!, $next_token: String) {\n  search(user_id: $user_id, search_key: $search_key, fetch_count: $fetch_count, next_token: $next_token) {\n    __typename\n    conversations {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    next_token\n  }\n}"
+
+  public var user_id: Int?
+  public var search_key: String?
+  public var fetch_count: Int
+  public var next_token: String?
+
+  public init(user_id: Int? = nil, search_key: String? = nil, fetch_count: Int, next_token: String? = nil) {
+    self.user_id = user_id
+    self.search_key = search_key
+    self.fetch_count = fetch_count
+    self.next_token = next_token
+  }
+
+  public var variables: GraphQLMap? {
+    return ["user_id": user_id, "search_key": search_key, "fetch_count": fetch_count, "next_token": next_token]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes = ["Query"]
+
+    public static let selections: [GraphQLSelection] = [
+      GraphQLField("search", arguments: ["user_id": GraphQLVariable("user_id"), "search_key": GraphQLVariable("search_key"), "fetch_count": GraphQLVariable("fetch_count"), "next_token": GraphQLVariable("next_token")], type: .object(Search.selections)),
+    ]
+
+    public var snapshot: Snapshot
+
+    public init(snapshot: Snapshot) {
+      self.snapshot = snapshot
+    }
+
+    public init(search: Search? = nil) {
+      self.init(snapshot: ["__typename": "Query", "search": search.flatMap { $0.snapshot }])
+    }
+
+    /// search for conversations by Peer name, it is not case sensitive.
+    /// # search_key is the search term that will be searched against
+    /// # next_token is returned for pagination
+    public var search: Search? {
+      get {
+        return (snapshot["search"] as? Snapshot).flatMap { Search(snapshot: $0) }
+      }
+      set {
+        snapshot.updateValue(newValue?.snapshot, forKey: "search")
+      }
+    }
+
+    public struct Search: GraphQLSelectionSet {
+      public static let possibleTypes = ["ConversationsList"]
+
+      public static let selections: [GraphQLSelection] = [
+        GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+        GraphQLField("conversations", type: .list(.object(Conversation.selections))),
+        GraphQLField("next_token", type: .scalar(String.self)),
+      ]
+
+      public var snapshot: Snapshot
+
+      public init(snapshot: Snapshot) {
+        self.snapshot = snapshot
+      }
+
+      public init(conversations: [Conversation?]? = nil, nextToken: String? = nil) {
+        self.init(snapshot: ["__typename": "ConversationsList", "conversations": conversations.flatMap { $0.map { $0.flatMap { $0.snapshot } } }, "next_token": nextToken])
+      }
+
+      public var __typename: String {
+        get {
+          return snapshot["__typename"]! as! String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "__typename")
+        }
+      }
+
+      /// returned list of conversations
+      public var conversations: [Conversation?]? {
+        get {
+          return (snapshot["conversations"] as? [Snapshot?]).flatMap { $0.map { $0.flatMap { Conversation(snapshot: $0) } } }
+        }
+        set {
+          snapshot.updateValue(newValue.flatMap { $0.map { $0.flatMap { $0.snapshot } } }, forKey: "conversations")
+        }
+      }
+
+      /// use the with getUserConversations_v3 to get the next page of pagination.
+      public var nextToken: String? {
+        get {
+          return snapshot["next_token"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "next_token")
+        }
+      }
+
+      public struct Conversation: GraphQLSelectionSet {
+        public static let possibleTypes = ["ConversationsListItem"]
+
+        public static let selections: [GraphQLSelection] = [
+          GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("last_action", type: .scalar(Int.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
+          GraphQLField("message", type: .object(Message.selections)),
+          GraphQLField("peer_user", type: .object(PeerUser.selections)),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
+          GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
+        ]
+
+        public var snapshot: Snapshot
+
+        public init(snapshot: Snapshot) {
+          self.snapshot = snapshot
+        }
+
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
+        }
+
+        public var __typename: String {
+          get {
+            return snapshot["__typename"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "__typename")
+          }
+        }
+
+        /// Conversation ID
+        public var conversationId: Int {
+          get {
+            return snapshot["conversation_id"]! as! Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "conversation_id")
+          }
+        }
+
+        /// last action on the convesration, example: when a new message added <br>
+        /// ############### the conversation last_action wil be updated.
+        public var lastAction: Int? {
+          get {
+            return snapshot["last_action"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_action")
+          }
+        }
+
+        /// timstamp in milliseconds for last action on conversation.
+        public var lastActionId: String? {
+          get {
+            return snapshot["last_action_id"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_action_id")
+          }
+        }
+
+        /// Message object returned when a conversation starts with a message
+        public var message: Message? {
+          get {
+            return (snapshot["message"] as? Snapshot).flatMap { Message(snapshot: $0) }
+          }
+          set {
+            snapshot.updateValue(newValue?.snapshot, forKey: "message")
+          }
+        }
+
+        /// The other user that is participant in the conversation<br>
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        public var peerUser: PeerUser? {
+          get {
+            return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
+          }
+          set {
+            snapshot.updateValue(newValue?.snapshot, forKey: "peer_user")
+          }
+        }
+
+        /// Unix timestamp
+        public var timestamp: String {
+          get {
+            return snapshot["timestamp"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "timestamp")
+          }
+        }
+
+        /// Unseen messages count in the conversations <br>
+        /// ############# This will be changed on every new message and every setSeenConversatin call
+        public var unseenCount: Int? {
+          get {
+            return snapshot["unseen_count"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
+          }
+        }
+
+        public struct Message: GraphQLSelectionSet {
+          public static let possibleTypes = ["Message"]
+
+          public static let selections: [GraphQLSelection] = [
+            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("conv_type", type: .scalar(Int.self)),
+            GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
+            GraphQLField("local_id", type: .scalar(Int.self)),
+            GraphQLField("m_type", type: .nonNull(.scalar(Int.self))),
+            GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
+            GraphQLField("status", type: .scalar(Int.self)),
+            GraphQLField("text", type: .scalar(String.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
+            GraphQLField("url", type: .scalar(String.self)),
+            GraphQLField("url_domain", type: .scalar(String.self)),
+            GraphQLField("url_text", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
+            GraphQLField("url_title", type: .scalar(String.self)),
+            GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
+          ]
+
+          public var snapshot: Snapshot
+
+          public init(snapshot: Snapshot) {
+            self.snapshot = snapshot
+          }
+
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
+          }
+
+          public var __typename: String {
+            get {
+              return snapshot["__typename"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          /// n/a
+          public var convType: Int? {
+            get {
+              return snapshot["conv_type"] as? Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "conv_type")
+            }
+          }
+
+          /// n/a
+          public var conversationId: Int {
+            get {
+              return snapshot["conversation_id"]! as! Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "conversation_id")
+            }
+          }
+
+          /// Message ID in the local database of the sender client i.e Mobile Application
+          public var localId: Int? {
+            get {
+              return snapshot["local_id"] as? Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "local_id")
+            }
+          }
+
+          /// Message type Enum values : <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
+          public var mType: Int {
+            get {
+              return snapshot["m_type"]! as! Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "m_type")
+            }
+          }
+
+          /// Message ID in the server DB
+          public var messageId: Int {
+            get {
+              return snapshot["message_id"]! as! Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "message_id")
+            }
+          }
+
+          /// Message status Enum values : <br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
+          public var status: Int? {
+            get {
+              return snapshot["status"] as? Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "status")
+            }
+          }
+
+          /// Message text
+          public var text: String? {
+            get {
+              return snapshot["text"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "text")
+            }
+          }
+
+          /// Unix timestamp
+          public var timestamp: String? {
+            get {
+              return snapshot["timestamp"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "timestamp")
+            }
+          }
+
+          /// URL of the attachment, link, gif
+          public var url: String? {
+            get {
+              return snapshot["url"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "url")
+            }
+          }
+
+          /// URL preview domain
+          public var urlDomain: String? {
+            get {
+              return snapshot["url_domain"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "url_domain")
+            }
+          }
+
+          /// URL preview text
+          public var urlText: String? {
+            get {
+              return snapshot["url_text"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "url_text")
+            }
+          }
+
+          /// URL preview thumb
+          public var thumbUrl: String? {
+            get {
+              return snapshot["thumb_url"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "thumb_url")
+            }
+          }
+
+          /// URL preview Title
+          public var urlTitle: String? {
+            get {
+              return snapshot["url_title"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "url_title")
+            }
+          }
+
+          /// User ID of the sender
+          public var userId: Int {
+            get {
+              return snapshot["user_id"]! as! Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "user_id")
+            }
+          }
+        }
+
+        public struct PeerUser: GraphQLSelectionSet {
+          public static let possibleTypes = ["User"]
+
+          public static let selections: [GraphQLSelection] = [
+            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
+            GraphQLField("name", type: .scalar(String.self)),
+            GraphQLField("user_id", type: .scalar(Int.self)),
+          ]
+
+          public var snapshot: Snapshot
+
+          public init(snapshot: Snapshot) {
+            self.snapshot = snapshot
+          }
+
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
+          }
+
+          public var __typename: String {
+            get {
+              return snapshot["__typename"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
+            }
+          }
+
+          public var name: String? {
+            get {
+              return snapshot["name"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "name")
+            }
+          }
+
+          public var userId: Int? {
+            get {
+              return snapshot["user_id"] as? Int
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "user_id")
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+public final class CheckNewActionsConversationQuery: GraphQLQuery {
+  public static let operationString =
+    "query CheckNewActionsConversation($user_id: Int!, $conversation_id: Int!, $message_id: Int!) {\n  checkNewActionsConversation(user_id: $user_id, conversation_id: $conversation_id, message_id: $message_id) {\n    __typename\n    new_msgs_count\n  }\n}"
+
+  public var user_id: Int
+  public var conversation_id: Int
+  public var message_id: Int
+
+  public init(user_id: Int, conversation_id: Int, message_id: Int) {
+    self.user_id = user_id
+    self.conversation_id = conversation_id
+    self.message_id = message_id
+  }
+
+  public var variables: GraphQLMap? {
+    return ["user_id": user_id, "conversation_id": conversation_id, "message_id": message_id]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes = ["Query"]
+
+    public static let selections: [GraphQLSelection] = [
+      GraphQLField("checkNewActionsConversation", arguments: ["user_id": GraphQLVariable("user_id"), "conversation_id": GraphQLVariable("conversation_id"), "message_id": GraphQLVariable("message_id")], type: .object(CheckNewActionsConversation.selections)),
+    ]
+
+    public var snapshot: Snapshot
+
+    public init(snapshot: Snapshot) {
+      self.snapshot = snapshot
+    }
+
+    public init(checkNewActionsConversation: CheckNewActionsConversation? = nil) {
+      self.init(snapshot: ["__typename": "Query", "checkNewActionsConversation": checkNewActionsConversation.flatMap { $0.snapshot }])
+    }
+
+    /// Check if chat has new actions
+    public var checkNewActionsConversation: CheckNewActionsConversation? {
+      get {
+        return (snapshot["checkNewActionsConversation"] as? Snapshot).flatMap { CheckNewActionsConversation(snapshot: $0) }
+      }
+      set {
+        snapshot.updateValue(newValue?.snapshot, forKey: "checkNewActionsConversation")
+      }
+    }
+
+    public struct CheckNewActionsConversation: GraphQLSelectionSet {
+      public static let possibleTypes = ["NewActionsConversationType"]
+
+      public static let selections: [GraphQLSelection] = [
+        GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+        GraphQLField("new_msgs_count", type: .nonNull(.scalar(Int.self))),
+      ]
+
+      public var snapshot: Snapshot
+
+      public init(snapshot: Snapshot) {
+        self.snapshot = snapshot
+      }
+
+      public init(newMsgsCount: Int) {
+        self.init(snapshot: ["__typename": "NewActionsConversationType", "new_msgs_count": newMsgsCount])
+      }
+
+      public var __typename: String {
+        get {
+          return snapshot["__typename"]! as! String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "__typename")
+        }
+      }
+
+      public var newMsgsCount: Int {
+        get {
+          return snapshot["new_msgs_count"]! as! Int
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "new_msgs_count")
         }
       }
     }
@@ -10500,25 +11959,27 @@ public final class CheckNewActionsQuery: GraphQLQuery {
 
 public final class GetConversationQuery: GraphQLQuery {
   public static let operationString =
-    "query GetConversation($conversation_id: Int!, $user_id: Int!) {\n  getConversation(conversation_id: $conversation_id, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n  }\n}"
+    "query GetConversation($conversation_id: Int, $peer_id: Int!, $user_id: Int!) {\n  getConversation(conversation_id: $conversation_id, peer_id: $peer_id, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      image_last_changed\n      image_type\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n    last_msg_text\n    last_msg_url\n    last_msg_m_type\n    is_blocked\n    peer_is_blocked\n  }\n}"
 
-  public var conversation_id: Int
+  public var conversation_id: Int?
+  public var peer_id: Int
   public var user_id: Int
 
-  public init(conversation_id: Int, user_id: Int) {
+  public init(conversation_id: Int? = nil, peer_id: Int, user_id: Int) {
     self.conversation_id = conversation_id
+    self.peer_id = peer_id
     self.user_id = user_id
   }
 
   public var variables: GraphQLMap? {
-    return ["conversation_id": conversation_id, "user_id": user_id]
+    return ["conversation_id": conversation_id, "peer_id": peer_id, "user_id": user_id]
   }
 
   public struct Data: GraphQLSelectionSet {
     public static let possibleTypes = ["Query"]
 
     public static let selections: [GraphQLSelection] = [
-      GraphQLField("getConversation", arguments: ["conversation_id": GraphQLVariable("conversation_id"), "user_id": GraphQLVariable("user_id")], type: .object(GetConversation.selections)),
+      GraphQLField("getConversation", arguments: ["conversation_id": GraphQLVariable("conversation_id"), "peer_id": GraphQLVariable("peer_id"), "user_id": GraphQLVariable("user_id")], type: .object(GetConversation.selections)),
     ]
 
     public var snapshot: Snapshot
@@ -10532,8 +11993,8 @@ public final class GetConversationQuery: GraphQLQuery {
     }
 
     /// Get the conversation information, <br>
-    /// ########## Use Case : When you receive/retrieve a message and you dont have information about <br>
-    /// ########## the conversation you call this query .
+    /// # Use Case : When you receive/retrieve a message and you dont have information the related conversation<br>
+    /// # Use Case : On space page in Uhive App, call this query to get the conversation information if exist.
     public var getConversation: GetConversation? {
       get {
         return (snapshot["getConversation"] as? Snapshot).flatMap { GetConversation(snapshot: $0) }
@@ -10550,11 +12011,16 @@ public final class GetConversationQuery: GraphQLQuery {
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
         GraphQLField("last_action", type: .scalar(Int.self)),
-        GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+        GraphQLField("last_action_id", type: .scalar(String.self)),
         GraphQLField("message", type: .object(Message.selections)),
         GraphQLField("peer_user", type: .object(PeerUser.selections)),
-        GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+        GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
         GraphQLField("unseen_count", type: .scalar(Int.self)),
+        GraphQLField("last_msg_text", type: .scalar(String.self)),
+        GraphQLField("last_msg_url", type: .scalar(String.self)),
+        GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+        GraphQLField("is_blocked", type: .scalar(Bool.self)),
+        GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
       ]
 
       public var snapshot: Snapshot
@@ -10563,8 +12029,8 @@ public final class GetConversationQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
       }
 
       public var __typename: String {
@@ -10587,7 +12053,7 @@ public final class GetConversationQuery: GraphQLQuery {
       }
 
       /// last action on the convesration, example: when a new message added <br>
-      /// ############ the conversation last_action wil be updated.
+      /// ############### the conversation last_action wil be updated.
       public var lastAction: Int? {
         get {
           return snapshot["last_action"] as? Int
@@ -10598,9 +12064,9 @@ public final class GetConversationQuery: GraphQLQuery {
       }
 
       /// timstamp in milliseconds for last action on conversation.
-      public var lastActionId: GraphQLID? {
+      public var lastActionId: String? {
         get {
-          return snapshot["last_action_id"] as? GraphQLID
+          return snapshot["last_action_id"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -10618,7 +12084,7 @@ public final class GetConversationQuery: GraphQLQuery {
       }
 
       /// The other user that is participant in the conversation<br>
-      /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+      /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
       public var peerUser: PeerUser? {
         get {
           return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -10629,9 +12095,9 @@ public final class GetConversationQuery: GraphQLQuery {
       }
 
       /// Unix timestamp
-      public var timestamp: GraphQLID {
+      public var timestamp: String {
         get {
-          return snapshot["timestamp"]! as! GraphQLID
+          return snapshot["timestamp"]! as! String
         }
         set {
           snapshot.updateValue(newValue, forKey: "timestamp")
@@ -10639,13 +12105,63 @@ public final class GetConversationQuery: GraphQLQuery {
       }
 
       /// Unseen messages count in the conversations <br>
-      /// ########## This will be chaned on every new message and every setSeenConversatin call
+      /// ############# This will be changed on every new message and every setSeenConversatin call
       public var unseenCount: Int? {
         get {
           return snapshot["unseen_count"] as? Int
         }
         set {
           snapshot.updateValue(newValue, forKey: "unseen_count")
+        }
+      }
+
+      /// Text of the last message in conversation (To be used for view purposes on client)
+      public var lastMsgText: String? {
+        get {
+          return snapshot["last_msg_text"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_text")
+        }
+      }
+
+      /// The URL of the last message in conversation
+      public var lastMsgUrl: String? {
+        get {
+          return snapshot["last_msg_url"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_url")
+        }
+      }
+
+      /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+      public var lastMsgMType: Int? {
+        get {
+          return snapshot["last_msg_m_type"] as? Int
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+      public var isBlocked: Bool? {
+        get {
+          return snapshot["is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "is_blocked")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the peer user or not
+      public var peerIsBlocked: Bool? {
+        get {
+          return snapshot["peer_is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "peer_is_blocked")
         }
       }
 
@@ -10661,11 +12177,11 @@ public final class GetConversationQuery: GraphQLQuery {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -10676,8 +12192,8 @@ public final class GetConversationQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -10720,16 +12236,16 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -10750,8 +12266,8 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -10772,9 +12288,9 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -10792,7 +12308,6 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -10803,7 +12318,6 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -10814,18 +12328,16 @@ public final class GetConversationQuery: GraphQLQuery {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -10851,6 +12363,8 @@ public final class GetConversationQuery: GraphQLQuery {
 
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("image_last_changed", type: .scalar(String.self)),
+          GraphQLField("image_type", type: .scalar(String.self)),
           GraphQLField("name", type: .scalar(String.self)),
           GraphQLField("user_id", type: .scalar(Int.self)),
         ]
@@ -10861,8 +12375,8 @@ public final class GetConversationQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(name: String? = nil, userId: Int? = nil) {
-          self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+        public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+          self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
         }
 
         public var __typename: String {
@@ -10871,6 +12385,24 @@ public final class GetConversationQuery: GraphQLQuery {
           }
           set {
             snapshot.updateValue(newValue, forKey: "__typename")
+          }
+        }
+
+        public var imageLastChanged: String? {
+          get {
+            return snapshot["image_last_changed"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_last_changed")
+          }
+        }
+
+        public var imageType: String? {
+          get {
+            return snapshot["image_type"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_type")
           }
         }
 
@@ -10898,7 +12430,7 @@ public final class GetConversationQuery: GraphQLQuery {
 
 public final class GetConversationMessagesQuery: GraphQLQuery {
   public static let operationString =
-    "query GetConversationMessages($conversation_id: Int!, $fetch_count: Int!, $start_from: Int, $user_id: Int!) {\n  getConversationMessages(conversation_id: $conversation_id, fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conv_type\n    conversation_id\n    local_id\n    m_type\n    message_id\n    status\n    text\n    timestamp\n    url\n    url_domain\n    url_text\n    url_thumb_url\n    url_title\n    user_id\n  }\n}"
+    "query GetConversationMessages($conversation_id: Int!, $fetch_count: Int!, $start_from: Int, $user_id: Int!) {\n  getConversationMessages(conversation_id: $conversation_id, fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conv_type\n    conversation_id\n    local_id\n    m_type\n    message_id\n    status\n    text\n    timestamp\n    url\n    url_domain\n    url_text\n    thumb_url\n    url_title\n    user_id\n  }\n}"
 
   public var conversation_id: Int
   public var fetch_count: Int
@@ -10955,11 +12487,11 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
         GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
         GraphQLField("status", type: .scalar(Int.self)),
         GraphQLField("text", type: .scalar(String.self)),
-        GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+        GraphQLField("timestamp", type: .scalar(String.self)),
         GraphQLField("url", type: .scalar(String.self)),
         GraphQLField("url_domain", type: .scalar(String.self)),
         GraphQLField("url_text", type: .scalar(String.self)),
-        GraphQLField("url_thumb_url", type: .scalar(String.self)),
+        GraphQLField("thumb_url", type: .scalar(String.self)),
         GraphQLField("url_title", type: .scalar(String.self)),
         GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
       ]
@@ -10970,8 +12502,8 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-        self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+      public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+        self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
       }
 
       public var __typename: String {
@@ -11014,16 +12546,16 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// Message type Enum values : <br>
-      /// ############################## 0 : TEXT <br>
-      /// ############################## 1 : VIDEO <br>
-      /// ############################## 2 : PICTURE <br>
-      /// ############################## 3 : DOCUMENT <br>
-      /// ############################## 4 : LINK <br>
-      /// ############################## 5 : LINK_YOUTUBE <br>
-      /// ############################## 6 : GIF <br>
-      /// ############################## 7 : GIF_TENOR <br>
-      /// ############################## 8 : AUDIO <br>
-      /// ############################## 9 : LOCATION <br>
+      /// ################################# 0 : TEXT <br>
+      /// ################################# 1 : VIDEO <br>
+      /// ################################# 2 : PICTURE <br>
+      /// ################################# 3 : DOCUMENT <br>
+      /// ################################# 4 : LINK <br>
+      /// ################################# 5 : LINK_YOUTUBE <br>
+      /// ################################# 6 : GIF <br>
+      /// ################################# 7 : GIF_TENOR <br>
+      /// ################################# 8 : AUDIO <br>
+      /// ################################# 9 : LOCATION <br>
       public var mType: Int {
         get {
           return snapshot["m_type"]! as! Int
@@ -11044,8 +12576,8 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// Message status Enum values : <br>
-      /// ############################## 0 : SENT <br>
-      /// ############################## 1 : SEEN<br>
+      /// ################################# 0 : SENT <br>
+      /// ################################# 1 : SEEN<br>
       public var status: Int? {
         get {
           return snapshot["status"] as? Int
@@ -11066,9 +12598,9 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// Unix timestamp
-      public var timestamp: GraphQLID? {
+      public var timestamp: String? {
         get {
-          return snapshot["timestamp"] as? GraphQLID
+          return snapshot["timestamp"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "timestamp")
@@ -11086,7 +12618,6 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview domain
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlDomain: String? {
         get {
           return snapshot["url_domain"] as? String
@@ -11097,7 +12628,6 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview text
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlText: String? {
         get {
           return snapshot["url_text"] as? String
@@ -11108,18 +12638,16 @@ public final class GetConversationMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview thumb
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-      public var urlThumbUrl: String? {
+      public var thumbUrl: String? {
         get {
-          return snapshot["url_thumb_url"] as? String
+          return snapshot["thumb_url"] as? String
         }
         set {
-          snapshot.updateValue(newValue, forKey: "url_thumb_url")
+          snapshot.updateValue(newValue, forKey: "thumb_url")
         }
       }
 
       /// URL preview Title
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlTitle: String? {
         get {
           return snapshot["url_title"] as? String
@@ -11234,7 +12762,7 @@ public final class GetUnseenCountQuery: GraphQLQuery {
 
 public final class GetUserConversationsQuery: GraphQLQuery {
   public static let operationString =
-    "query GetUserConversations($fetch_count: Int!, $start_from: Int, $user_id: Int) {\n  getUserConversations(fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n  }\n}"
+    "query GetUserConversations($fetch_count: Int!, $start_from: Int, $user_id: Int) {\n  getUserConversations(fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      image_last_changed\n      image_type\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n    last_msg_text\n    last_msg_url\n    last_msg_m_type\n    is_blocked\n    peer_is_blocked\n  }\n}"
 
   public var fetch_count: Int
   public var start_from: Int?
@@ -11284,11 +12812,16 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
         GraphQLField("last_action", type: .scalar(Int.self)),
-        GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+        GraphQLField("last_action_id", type: .scalar(String.self)),
         GraphQLField("message", type: .object(Message.selections)),
         GraphQLField("peer_user", type: .object(PeerUser.selections)),
-        GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+        GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
         GraphQLField("unseen_count", type: .scalar(Int.self)),
+        GraphQLField("last_msg_text", type: .scalar(String.self)),
+        GraphQLField("last_msg_url", type: .scalar(String.self)),
+        GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+        GraphQLField("is_blocked", type: .scalar(Bool.self)),
+        GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
       ]
 
       public var snapshot: Snapshot
@@ -11297,8 +12830,8 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
       }
 
       public var __typename: String {
@@ -11321,7 +12854,7 @@ public final class GetUserConversationsQuery: GraphQLQuery {
       }
 
       /// last action on the convesration, example: when a new message added <br>
-      /// ############ the conversation last_action wil be updated.
+      /// ############### the conversation last_action wil be updated.
       public var lastAction: Int? {
         get {
           return snapshot["last_action"] as? Int
@@ -11332,9 +12865,9 @@ public final class GetUserConversationsQuery: GraphQLQuery {
       }
 
       /// timstamp in milliseconds for last action on conversation.
-      public var lastActionId: GraphQLID? {
+      public var lastActionId: String? {
         get {
-          return snapshot["last_action_id"] as? GraphQLID
+          return snapshot["last_action_id"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -11352,7 +12885,7 @@ public final class GetUserConversationsQuery: GraphQLQuery {
       }
 
       /// The other user that is participant in the conversation<br>
-      /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+      /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
       public var peerUser: PeerUser? {
         get {
           return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -11363,9 +12896,9 @@ public final class GetUserConversationsQuery: GraphQLQuery {
       }
 
       /// Unix timestamp
-      public var timestamp: GraphQLID {
+      public var timestamp: String {
         get {
-          return snapshot["timestamp"]! as! GraphQLID
+          return snapshot["timestamp"]! as! String
         }
         set {
           snapshot.updateValue(newValue, forKey: "timestamp")
@@ -11373,13 +12906,63 @@ public final class GetUserConversationsQuery: GraphQLQuery {
       }
 
       /// Unseen messages count in the conversations <br>
-      /// ########## This will be chaned on every new message and every setSeenConversatin call
+      /// ############# This will be changed on every new message and every setSeenConversatin call
       public var unseenCount: Int? {
         get {
           return snapshot["unseen_count"] as? Int
         }
         set {
           snapshot.updateValue(newValue, forKey: "unseen_count")
+        }
+      }
+
+      /// Text of the last message in conversation (To be used for view purposes on client)
+      public var lastMsgText: String? {
+        get {
+          return snapshot["last_msg_text"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_text")
+        }
+      }
+
+      /// The URL of the last message in conversation
+      public var lastMsgUrl: String? {
+        get {
+          return snapshot["last_msg_url"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_url")
+        }
+      }
+
+      /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+      public var lastMsgMType: Int? {
+        get {
+          return snapshot["last_msg_m_type"] as? Int
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+      public var isBlocked: Bool? {
+        get {
+          return snapshot["is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "is_blocked")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the peer user or not
+      public var peerIsBlocked: Bool? {
+        get {
+          return snapshot["peer_is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "peer_is_blocked")
         }
       }
 
@@ -11395,11 +12978,11 @@ public final class GetUserConversationsQuery: GraphQLQuery {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -11410,8 +12993,8 @@ public final class GetUserConversationsQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -11454,16 +13037,16 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -11484,8 +13067,8 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -11506,9 +13089,9 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -11526,7 +13109,6 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -11537,7 +13119,6 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -11548,18 +13129,16 @@ public final class GetUserConversationsQuery: GraphQLQuery {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -11585,6 +13164,8 @@ public final class GetUserConversationsQuery: GraphQLQuery {
 
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("image_last_changed", type: .scalar(String.self)),
+          GraphQLField("image_type", type: .scalar(String.self)),
           GraphQLField("name", type: .scalar(String.self)),
           GraphQLField("user_id", type: .scalar(Int.self)),
         ]
@@ -11595,8 +13176,8 @@ public final class GetUserConversationsQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(name: String? = nil, userId: Int? = nil) {
-          self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+        public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+          self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
         }
 
         public var __typename: String {
@@ -11605,6 +13186,24 @@ public final class GetUserConversationsQuery: GraphQLQuery {
           }
           set {
             snapshot.updateValue(newValue, forKey: "__typename")
+          }
+        }
+
+        public var imageLastChanged: String? {
+          get {
+            return snapshot["image_last_changed"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_last_changed")
+          }
+        }
+
+        public var imageType: String? {
+          get {
+            return snapshot["image_type"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_type")
           }
         }
 
@@ -11739,7 +13338,7 @@ public final class GetUserConversationsDepQuery: GraphQLQuery {
 
 public final class GetUserConversationsV2Query: GraphQLQuery {
   public static let operationString =
-    "query GetUserConversationsV2($fetch_count: Int!, $last_action: Int, $user_id: Int) {\n  getUserConversations_v2(fetch_count: $fetch_count, last_action: $last_action, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n  }\n}"
+    "query GetUserConversationsV2($fetch_count: Int!, $last_action: Int, $user_id: Int) {\n  getUserConversations_v2(fetch_count: $fetch_count, last_action: $last_action, user_id: $user_id) {\n    __typename\n    conversation_id\n    last_action\n    last_action_id\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    peer_user {\n      __typename\n      image_last_changed\n      image_type\n      name\n      user_id\n    }\n    timestamp\n    unseen_count\n    last_msg_text\n    last_msg_url\n    last_msg_m_type\n    is_blocked\n    peer_is_blocked\n  }\n}"
 
   public var fetch_count: Int
   public var last_action: Int?
@@ -11789,11 +13388,16 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
         GraphQLField("last_action", type: .scalar(Int.self)),
-        GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+        GraphQLField("last_action_id", type: .scalar(String.self)),
         GraphQLField("message", type: .object(Message.selections)),
         GraphQLField("peer_user", type: .object(PeerUser.selections)),
-        GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+        GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
         GraphQLField("unseen_count", type: .scalar(Int.self)),
+        GraphQLField("last_msg_text", type: .scalar(String.self)),
+        GraphQLField("last_msg_url", type: .scalar(String.self)),
+        GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+        GraphQLField("is_blocked", type: .scalar(Bool.self)),
+        GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
       ]
 
       public var snapshot: Snapshot
@@ -11802,8 +13406,8 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+      public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+        self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
       }
 
       public var __typename: String {
@@ -11826,7 +13430,7 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
       }
 
       /// last action on the convesration, example: when a new message added <br>
-      /// ############ the conversation last_action wil be updated.
+      /// ############### the conversation last_action wil be updated.
       public var lastAction: Int? {
         get {
           return snapshot["last_action"] as? Int
@@ -11837,9 +13441,9 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
       }
 
       /// timstamp in milliseconds for last action on conversation.
-      public var lastActionId: GraphQLID? {
+      public var lastActionId: String? {
         get {
-          return snapshot["last_action_id"] as? GraphQLID
+          return snapshot["last_action_id"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -11857,7 +13461,7 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
       }
 
       /// The other user that is participant in the conversation<br>
-      /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+      /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
       public var peerUser: PeerUser? {
         get {
           return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -11868,9 +13472,9 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
       }
 
       /// Unix timestamp
-      public var timestamp: GraphQLID {
+      public var timestamp: String {
         get {
-          return snapshot["timestamp"]! as! GraphQLID
+          return snapshot["timestamp"]! as! String
         }
         set {
           snapshot.updateValue(newValue, forKey: "timestamp")
@@ -11878,13 +13482,63 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
       }
 
       /// Unseen messages count in the conversations <br>
-      /// ########## This will be chaned on every new message and every setSeenConversatin call
+      /// ############# This will be changed on every new message and every setSeenConversatin call
       public var unseenCount: Int? {
         get {
           return snapshot["unseen_count"] as? Int
         }
         set {
           snapshot.updateValue(newValue, forKey: "unseen_count")
+        }
+      }
+
+      /// Text of the last message in conversation (To be used for view purposes on client)
+      public var lastMsgText: String? {
+        get {
+          return snapshot["last_msg_text"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_text")
+        }
+      }
+
+      /// The URL of the last message in conversation
+      public var lastMsgUrl: String? {
+        get {
+          return snapshot["last_msg_url"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_url")
+        }
+      }
+
+      /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+      public var lastMsgMType: Int? {
+        get {
+          return snapshot["last_msg_m_type"] as? Int
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+      public var isBlocked: Bool? {
+        get {
+          return snapshot["is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "is_blocked")
+        }
+      }
+
+      /// Indicateds wither the conversation is blocked by the peer user or not
+      public var peerIsBlocked: Bool? {
+        get {
+          return snapshot["peer_is_blocked"] as? Bool
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "peer_is_blocked")
         }
       }
 
@@ -11900,11 +13554,11 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -11915,8 +13569,8 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -11959,16 +13613,16 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -11989,8 +13643,8 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -12011,9 +13665,9 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -12031,7 +13685,6 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -12042,7 +13695,6 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -12053,18 +13705,16 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -12090,6 +13740,8 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
 
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("image_last_changed", type: .scalar(String.self)),
+          GraphQLField("image_type", type: .scalar(String.self)),
           GraphQLField("name", type: .scalar(String.self)),
           GraphQLField("user_id", type: .scalar(Int.self)),
         ]
@@ -12100,8 +13752,8 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(name: String? = nil, userId: Int? = nil) {
-          self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+        public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+          self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
         }
 
         public var __typename: String {
@@ -12110,6 +13762,24 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
           }
           set {
             snapshot.updateValue(newValue, forKey: "__typename")
+          }
+        }
+
+        public var imageLastChanged: String? {
+          get {
+            return snapshot["image_last_changed"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_last_changed")
+          }
+        }
+
+        public var imageType: String? {
+          get {
+            return snapshot["image_type"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "image_type")
           }
         }
 
@@ -12137,7 +13807,7 @@ public final class GetUserConversationsV2Query: GraphQLQuery {
 
 public final class GetUserConversationsV3Query: GraphQLQuery {
   public static let operationString =
-    "query GetUserConversationsV3($base_conv: Int, $fetch_count: Int, $next_token: String, $user_id: Int!) {\n  getUserConversations_v3(base_conv: $base_conv, fetch_count: $fetch_count, next_token: $next_token, user_id: $user_id) {\n    __typename\n    conversations {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    next_token\n  }\n}"
+    "query GetUserConversationsV3($base_conv: Int, $fetch_count: Int, $next_token: String, $user_id: Int!) {\n  getUserConversations_v3(base_conv: $base_conv, fetch_count: $fetch_count, next_token: $next_token, user_id: $user_id) {\n    __typename\n    conversations {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    next_token\n  }\n}"
 
   public var base_conv: Int?
   public var fetch_count: Int?
@@ -12237,11 +13907,16 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -12250,8 +13925,8 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -12274,7 +13949,7 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -12285,9 +13960,9 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -12305,7 +13980,7 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -12316,9 +13991,9 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -12326,13 +14001,63 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be changed on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -12348,11 +14073,11 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -12363,8 +14088,8 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -12407,16 +14132,16 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -12437,8 +14162,8 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -12459,9 +14184,9 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -12479,7 +14204,6 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -12490,7 +14214,6 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -12501,18 +14224,16 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -12538,6 +14259,8 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -12548,8 +14271,8 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -12558,6 +14281,24 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -12586,7 +14327,7 @@ public final class GetUserConversationsV3Query: GraphQLQuery {
 
 public final class GetUserMessagesQuery: GraphQLQuery {
   public static let operationString =
-    "query GetUserMessages($fetch_count: Int!, $start_from: Int, $user_id: Int!) {\n  getUserMessages(fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conv_type\n    conversation_id\n    local_id\n    m_type\n    message_id\n    status\n    text\n    timestamp\n    url\n    url_domain\n    url_text\n    url_thumb_url\n    url_title\n    user_id\n  }\n}"
+    "query GetUserMessages($fetch_count: Int!, $start_from: Int, $user_id: Int!) {\n  getUserMessages(fetch_count: $fetch_count, start_from: $start_from, user_id: $user_id) {\n    __typename\n    conv_type\n    conversation_id\n    local_id\n    m_type\n    message_id\n    status\n    text\n    timestamp\n    url\n    url_domain\n    url_text\n    thumb_url\n    url_title\n    user_id\n  }\n}"
 
   public var fetch_count: Int
   public var start_from: Int?
@@ -12620,7 +14361,7 @@ public final class GetUserMessagesQuery: GraphQLQuery {
     }
 
     /// Get messages by User ID <br>
-    /// ############################## this query will return all the messages for the user without grouping them by conversation, the will be orderd by ID.
+    /// ################################# this query will return all the messages for the user without grouping them by conversation, the will be orderd by ID.
     public var getUserMessages: [GetUserMessage?]? {
       get {
         return (snapshot["getUserMessages"] as? [Snapshot?]).flatMap { $0.map { $0.flatMap { GetUserMessage(snapshot: $0) } } }
@@ -12642,11 +14383,11 @@ public final class GetUserMessagesQuery: GraphQLQuery {
         GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
         GraphQLField("status", type: .scalar(Int.self)),
         GraphQLField("text", type: .scalar(String.self)),
-        GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+        GraphQLField("timestamp", type: .scalar(String.self)),
         GraphQLField("url", type: .scalar(String.self)),
         GraphQLField("url_domain", type: .scalar(String.self)),
         GraphQLField("url_text", type: .scalar(String.self)),
-        GraphQLField("url_thumb_url", type: .scalar(String.self)),
+        GraphQLField("thumb_url", type: .scalar(String.self)),
         GraphQLField("url_title", type: .scalar(String.self)),
         GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
       ]
@@ -12657,8 +14398,8 @@ public final class GetUserMessagesQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-        self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+      public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+        self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
       }
 
       public var __typename: String {
@@ -12701,16 +14442,16 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// Message type Enum values : <br>
-      /// ############################## 0 : TEXT <br>
-      /// ############################## 1 : VIDEO <br>
-      /// ############################## 2 : PICTURE <br>
-      /// ############################## 3 : DOCUMENT <br>
-      /// ############################## 4 : LINK <br>
-      /// ############################## 5 : LINK_YOUTUBE <br>
-      /// ############################## 6 : GIF <br>
-      /// ############################## 7 : GIF_TENOR <br>
-      /// ############################## 8 : AUDIO <br>
-      /// ############################## 9 : LOCATION <br>
+      /// ################################# 0 : TEXT <br>
+      /// ################################# 1 : VIDEO <br>
+      /// ################################# 2 : PICTURE <br>
+      /// ################################# 3 : DOCUMENT <br>
+      /// ################################# 4 : LINK <br>
+      /// ################################# 5 : LINK_YOUTUBE <br>
+      /// ################################# 6 : GIF <br>
+      /// ################################# 7 : GIF_TENOR <br>
+      /// ################################# 8 : AUDIO <br>
+      /// ################################# 9 : LOCATION <br>
       public var mType: Int {
         get {
           return snapshot["m_type"]! as! Int
@@ -12731,8 +14472,8 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// Message status Enum values : <br>
-      /// ############################## 0 : SENT <br>
-      /// ############################## 1 : SEEN<br>
+      /// ################################# 0 : SENT <br>
+      /// ################################# 1 : SEEN<br>
       public var status: Int? {
         get {
           return snapshot["status"] as? Int
@@ -12753,9 +14494,9 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// Unix timestamp
-      public var timestamp: GraphQLID? {
+      public var timestamp: String? {
         get {
-          return snapshot["timestamp"] as? GraphQLID
+          return snapshot["timestamp"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "timestamp")
@@ -12773,7 +14514,6 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview domain
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlDomain: String? {
         get {
           return snapshot["url_domain"] as? String
@@ -12784,7 +14524,6 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview text
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlText: String? {
         get {
           return snapshot["url_text"] as? String
@@ -12795,18 +14534,16 @@ public final class GetUserMessagesQuery: GraphQLQuery {
       }
 
       /// URL preview thumb
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-      public var urlThumbUrl: String? {
+      public var thumbUrl: String? {
         get {
-          return snapshot["url_thumb_url"] as? String
+          return snapshot["thumb_url"] as? String
         }
         set {
-          snapshot.updateValue(newValue, forKey: "url_thumb_url")
+          snapshot.updateValue(newValue, forKey: "thumb_url")
         }
       }
 
       /// URL preview Title
-      @available(*, deprecated, message: "Url Preview meta data are generated locally.")
       public var urlTitle: String? {
         get {
           return snapshot["url_title"] as? String
@@ -12876,7 +14613,7 @@ public final class GetUserOnlineStatusQuery: GraphQLQuery {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("is_online", type: .scalar(Bool.self)),
-        GraphQLField("last_seen", type: .scalar(GraphQLID.self)),
+        GraphQLField("last_seen", type: .scalar(String.self)),
       ]
 
       public var snapshot: Snapshot
@@ -12885,7 +14622,7 @@ public final class GetUserOnlineStatusQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(isOnline: Bool? = nil, lastSeen: GraphQLID? = nil) {
+      public init(isOnline: Bool? = nil, lastSeen: String? = nil) {
         self.init(snapshot: ["__typename": "SignalOnlineStatus", "is_online": isOnline, "last_seen": lastSeen])
       }
 
@@ -12909,9 +14646,9 @@ public final class GetUserOnlineStatusQuery: GraphQLQuery {
       }
 
       /// Unix timestamp in mille-seconds
-      public var lastSeen: GraphQLID? {
+      public var lastSeen: String? {
         get {
-          return snapshot["last_seen"] as? GraphQLID
+          return snapshot["last_seen"] as? String
         }
         set {
           snapshot.updateValue(newValue, forKey: "last_seen")
@@ -12923,7 +14660,7 @@ public final class GetUserOnlineStatusQuery: GraphQLQuery {
 
 public final class SubscribeByUserIdSubscription: GraphQLSubscription {
   public static let operationString =
-    "subscription SubscribeByUserId($receiver_id: Int) {\n  subscribeByUserID(receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        url_thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      url_thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
+    "subscription SubscribeByUserId($receiver_id: Int) {\n  subscribeByUserID(receiver_id: $receiver_id) {\n    __typename\n    action_type\n    conversation {\n      __typename\n      conversation_id\n      last_action\n      last_action_id\n      message {\n        __typename\n        conv_type\n        conversation_id\n        local_id\n        m_type\n        message_id\n        status\n        text\n        timestamp\n        url\n        url_domain\n        url_text\n        thumb_url\n        url_title\n        user_id\n      }\n      peer_user {\n        __typename\n        image_last_changed\n        image_type\n        name\n        user_id\n      }\n      timestamp\n      unseen_count\n      last_msg_text\n      last_msg_url\n      last_msg_m_type\n      is_blocked\n      peer_is_blocked\n    }\n    message {\n      __typename\n      conv_type\n      conversation_id\n      local_id\n      m_type\n      message_id\n      status\n      text\n      timestamp\n      url\n      url_domain\n      url_text\n      thumb_url\n      url_title\n      user_id\n    }\n    receiver_id\n    seen {\n      __typename\n      conversation_id\n      last_msg_seen_id\n    }\n    typing {\n      __typename\n      action\n      conversation_id\n      conversation_type\n      receiver_id\n      user_id\n    }\n  }\n}"
 
   public var receiver_id: Int?
 
@@ -12953,14 +14690,14 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
     }
 
     /// - This is generic subscription for all actions <br>
-    /// ############################## - The cleint will subscribe for this topic and all the actions will be recieved through this channel <br>
-    /// ############################## - This subscription will be attached for the following mutations : <br>
-    /// ##############################		- addMessage <br>
-    /// ############################## 		- publishTyping <br>
-    /// ##############################		- setSeenConversation <br>
-    /// ##############################		- newGroupAdded <br>
-    /// ############################## - The subscriber will receive a message when someone calls any of the preceeded mutations <br>
-    /// ############################## - The "receiver_id" in any of the preceeded mutations should should match the receiver_id(which is your User ID as a subscriber) of this subscription. <br>
+    /// ################################# - The cleint will subscribe for this topic and all the actions will be recieved through this channel <br>
+    /// ################################# - This subscription will be attached for the following mutations : <br>
+    /// #################################   - addMessage <br>
+    /// #################################     - publishTyping <br>
+    /// #################################   - setSeenConversation <br>
+    /// #################################   - newGroupAdded <br>
+    /// ################################# - The subscriber will receive a message when someone calls any of the preceeded mutations <br>
+    /// ################################# - The "receiver_id" in any of the preceeded mutations should should match the receiver_id(which is your User ID as a subscriber) of this subscription. <br>
     public var subscribeByUserId: SubscribeByUserId? {
       get {
         return (snapshot["subscribeByUserID"] as? Snapshot).flatMap { SubscribeByUserId(snapshot: $0) }
@@ -13003,11 +14740,11 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
       }
 
       /// action_type Enum values : <br>
-      /// ############################## 0 : NEW_MESSAGE <br>
-      /// ############################## 1 : TYPING <br>
-      /// ############################## 2 : SEEN <br>
-      /// ############################## 3 : NEW_CONVERSATION <br>
-      /// ############################## 4 : JOINED_FOR_GROUP_CONVERSATION <br>
+      /// ################################# 0 : NEW_MESSAGE <br>
+      /// ################################# 1 : TYPING <br>
+      /// ################################# 2 : SEEN <br>
+      /// ################################# 3 : NEW_CONVERSATION <br>
+      /// ################################# 4 : JOINED_FOR_GROUP_CONVERSATION <br>
       public var actionType: Int? {
         get {
           return snapshot["action_type"] as? Int
@@ -13074,11 +14811,16 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("conversation_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("last_action", type: .scalar(Int.self)),
-          GraphQLField("last_action_id", type: .scalar(GraphQLID.self)),
+          GraphQLField("last_action_id", type: .scalar(String.self)),
           GraphQLField("message", type: .object(Message.selections)),
           GraphQLField("peer_user", type: .object(PeerUser.selections)),
-          GraphQLField("timestamp", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("timestamp", type: .nonNull(.scalar(String.self))),
           GraphQLField("unseen_count", type: .scalar(Int.self)),
+          GraphQLField("last_msg_text", type: .scalar(String.self)),
+          GraphQLField("last_msg_url", type: .scalar(String.self)),
+          GraphQLField("last_msg_m_type", type: .scalar(Int.self)),
+          GraphQLField("is_blocked", type: .scalar(Bool.self)),
+          GraphQLField("peer_is_blocked", type: .scalar(Bool.self)),
         ]
 
         public var snapshot: Snapshot
@@ -13087,8 +14829,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           self.snapshot = snapshot
         }
 
-        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: GraphQLID? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: GraphQLID, unseenCount: Int? = nil) {
-          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount])
+        public init(conversationId: Int, lastAction: Int? = nil, lastActionId: String? = nil, message: Message? = nil, peerUser: PeerUser? = nil, timestamp: String, unseenCount: Int? = nil, lastMsgText: String? = nil, lastMsgUrl: String? = nil, lastMsgMType: Int? = nil, isBlocked: Bool? = nil, peerIsBlocked: Bool? = nil) {
+          self.init(snapshot: ["__typename": "ConversationsListItem_startConversation", "conversation_id": conversationId, "last_action": lastAction, "last_action_id": lastActionId, "message": message.flatMap { $0.snapshot }, "peer_user": peerUser.flatMap { $0.snapshot }, "timestamp": timestamp, "unseen_count": unseenCount, "last_msg_text": lastMsgText, "last_msg_url": lastMsgUrl, "last_msg_m_type": lastMsgMType, "is_blocked": isBlocked, "peer_is_blocked": peerIsBlocked])
         }
 
         public var __typename: String {
@@ -13111,7 +14853,7 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// last action on the convesration, example: when a new message added <br>
-        /// ############ the conversation last_action wil be updated.
+        /// ############### the conversation last_action wil be updated.
         public var lastAction: Int? {
           get {
             return snapshot["last_action"] as? Int
@@ -13122,9 +14864,9 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// timstamp in milliseconds for last action on conversation.
-        public var lastActionId: GraphQLID? {
+        public var lastActionId: String? {
           get {
-            return snapshot["last_action_id"] as? GraphQLID
+            return snapshot["last_action_id"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "last_action_id")
@@ -13142,7 +14884,7 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// The other user that is participant in the conversation<br>
-        /// ####################### In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
+        /// ########################## In case It's returend from startConversation or getUserConversation; the peer_user will not be the sender/requests
         public var peerUser: PeerUser? {
           get {
             return (snapshot["peer_user"] as? Snapshot).flatMap { PeerUser(snapshot: $0) }
@@ -13153,9 +14895,9 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID {
+        public var timestamp: String {
           get {
-            return snapshot["timestamp"]! as! GraphQLID
+            return snapshot["timestamp"]! as! String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -13163,13 +14905,63 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Unseen messages count in the conversations <br>
-        /// ########## This will be chaned on every new message and every setSeenConversatin call
+        /// ############# This will be chaned on every new message and every setSeenConversatin call
         public var unseenCount: Int? {
           get {
             return snapshot["unseen_count"] as? Int
           }
           set {
             snapshot.updateValue(newValue, forKey: "unseen_count")
+          }
+        }
+
+        /// Text of the last message in conversation (To be used for view purposes on client)
+        public var lastMsgText: String? {
+          get {
+            return snapshot["last_msg_text"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_text")
+          }
+        }
+
+        /// The URL of the last message in conversation
+        public var lastMsgUrl: String? {
+          get {
+            return snapshot["last_msg_url"] as? String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_url")
+          }
+        }
+
+        /// The message type of the last message in conversation, this is usefull to show different view for multiple messages types
+        public var lastMsgMType: Int? {
+          get {
+            return snapshot["last_msg_m_type"] as? Int
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "last_msg_m_type")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the user(the performed the request) or not
+        public var isBlocked: Bool? {
+          get {
+            return snapshot["is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "is_blocked")
+          }
+        }
+
+        /// Indicateds wither the conversation is blocked by the peer user or not
+        public var peerIsBlocked: Bool? {
+          get {
+            return snapshot["peer_is_blocked"] as? Bool
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "peer_is_blocked")
           }
         }
 
@@ -13185,11 +14977,11 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
             GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
             GraphQLField("status", type: .scalar(Int.self)),
             GraphQLField("text", type: .scalar(String.self)),
-            GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+            GraphQLField("timestamp", type: .scalar(String.self)),
             GraphQLField("url", type: .scalar(String.self)),
             GraphQLField("url_domain", type: .scalar(String.self)),
             GraphQLField("url_text", type: .scalar(String.self)),
-            GraphQLField("url_thumb_url", type: .scalar(String.self)),
+            GraphQLField("thumb_url", type: .scalar(String.self)),
             GraphQLField("url_title", type: .scalar(String.self)),
             GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
           ]
@@ -13200,8 +14992,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
             self.snapshot = snapshot
           }
 
-          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+          public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+            self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
           }
 
           public var __typename: String {
@@ -13244,16 +15036,16 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// Message type Enum values : <br>
-          /// ############################## 0 : TEXT <br>
-          /// ############################## 1 : VIDEO <br>
-          /// ############################## 2 : PICTURE <br>
-          /// ############################## 3 : DOCUMENT <br>
-          /// ############################## 4 : LINK <br>
-          /// ############################## 5 : LINK_YOUTUBE <br>
-          /// ############################## 6 : GIF <br>
-          /// ############################## 7 : GIF_TENOR <br>
-          /// ############################## 8 : AUDIO <br>
-          /// ############################## 9 : LOCATION <br>
+          /// ################################# 0 : TEXT <br>
+          /// ################################# 1 : VIDEO <br>
+          /// ################################# 2 : PICTURE <br>
+          /// ################################# 3 : DOCUMENT <br>
+          /// ################################# 4 : LINK <br>
+          /// ################################# 5 : LINK_YOUTUBE <br>
+          /// ################################# 6 : GIF <br>
+          /// ################################# 7 : GIF_TENOR <br>
+          /// ################################# 8 : AUDIO <br>
+          /// ################################# 9 : LOCATION <br>
           public var mType: Int {
             get {
               return snapshot["m_type"]! as! Int
@@ -13274,8 +15066,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// Message status Enum values : <br>
-          /// ############################## 0 : SENT <br>
-          /// ############################## 1 : SEEN<br>
+          /// ################################# 0 : SENT <br>
+          /// ################################# 1 : SEEN<br>
           public var status: Int? {
             get {
               return snapshot["status"] as? Int
@@ -13296,9 +15088,9 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// Unix timestamp
-          public var timestamp: GraphQLID? {
+          public var timestamp: String? {
             get {
-              return snapshot["timestamp"] as? GraphQLID
+              return snapshot["timestamp"] as? String
             }
             set {
               snapshot.updateValue(newValue, forKey: "timestamp")
@@ -13316,7 +15108,6 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// URL preview domain
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlDomain: String? {
             get {
               return snapshot["url_domain"] as? String
@@ -13327,7 +15118,6 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// URL preview text
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlText: String? {
             get {
               return snapshot["url_text"] as? String
@@ -13338,18 +15128,16 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           }
 
           /// URL preview thumb
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-          public var urlThumbUrl: String? {
+          public var thumbUrl: String? {
             get {
-              return snapshot["url_thumb_url"] as? String
+              return snapshot["thumb_url"] as? String
             }
             set {
-              snapshot.updateValue(newValue, forKey: "url_thumb_url")
+              snapshot.updateValue(newValue, forKey: "thumb_url")
             }
           }
 
           /// URL preview Title
-          @available(*, deprecated, message: "Url Preview meta data are generated locally.")
           public var urlTitle: String? {
             get {
               return snapshot["url_title"] as? String
@@ -13375,6 +15163,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
 
           public static let selections: [GraphQLSelection] = [
             GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("image_last_changed", type: .scalar(String.self)),
+            GraphQLField("image_type", type: .scalar(String.self)),
             GraphQLField("name", type: .scalar(String.self)),
             GraphQLField("user_id", type: .scalar(Int.self)),
           ]
@@ -13385,8 +15175,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
             self.snapshot = snapshot
           }
 
-          public init(name: String? = nil, userId: Int? = nil) {
-            self.init(snapshot: ["__typename": "User", "name": name, "user_id": userId])
+          public init(imageLastChanged: String? = nil, imageType: String? = nil, name: String? = nil, userId: Int? = nil) {
+            self.init(snapshot: ["__typename": "User", "image_last_changed": imageLastChanged, "image_type": imageType, "name": name, "user_id": userId])
           }
 
           public var __typename: String {
@@ -13395,6 +15185,24 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
             }
             set {
               snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var imageLastChanged: String? {
+            get {
+              return snapshot["image_last_changed"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_last_changed")
+            }
+          }
+
+          public var imageType: String? {
+            get {
+              return snapshot["image_type"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "image_type")
             }
           }
 
@@ -13430,11 +15238,11 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           GraphQLField("message_id", type: .nonNull(.scalar(Int.self))),
           GraphQLField("status", type: .scalar(Int.self)),
           GraphQLField("text", type: .scalar(String.self)),
-          GraphQLField("timestamp", type: .scalar(GraphQLID.self)),
+          GraphQLField("timestamp", type: .scalar(String.self)),
           GraphQLField("url", type: .scalar(String.self)),
           GraphQLField("url_domain", type: .scalar(String.self)),
           GraphQLField("url_text", type: .scalar(String.self)),
-          GraphQLField("url_thumb_url", type: .scalar(String.self)),
+          GraphQLField("thumb_url", type: .scalar(String.self)),
           GraphQLField("url_title", type: .scalar(String.self)),
           GraphQLField("user_id", type: .nonNull(.scalar(Int.self))),
         ]
@@ -13445,8 +15253,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
           self.snapshot = snapshot
         }
 
-        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: GraphQLID? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, urlThumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
-          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "url_thumb_url": urlThumbUrl, "url_title": urlTitle, "user_id": userId])
+        public init(convType: Int? = nil, conversationId: Int, localId: Int? = nil, mType: Int, messageId: Int, status: Int? = nil, text: String? = nil, timestamp: String? = nil, url: String? = nil, urlDomain: String? = nil, urlText: String? = nil, thumbUrl: String? = nil, urlTitle: String? = nil, userId: Int) {
+          self.init(snapshot: ["__typename": "Message", "conv_type": convType, "conversation_id": conversationId, "local_id": localId, "m_type": mType, "message_id": messageId, "status": status, "text": text, "timestamp": timestamp, "url": url, "url_domain": urlDomain, "url_text": urlText, "thumb_url": thumbUrl, "url_title": urlTitle, "user_id": userId])
         }
 
         public var __typename: String {
@@ -13489,16 +15297,16 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Message type Enum values : <br>
-        /// ############################## 0 : TEXT <br>
-        /// ############################## 1 : VIDEO <br>
-        /// ############################## 2 : PICTURE <br>
-        /// ############################## 3 : DOCUMENT <br>
-        /// ############################## 4 : LINK <br>
-        /// ############################## 5 : LINK_YOUTUBE <br>
-        /// ############################## 6 : GIF <br>
-        /// ############################## 7 : GIF_TENOR <br>
-        /// ############################## 8 : AUDIO <br>
-        /// ############################## 9 : LOCATION <br>
+        /// ################################# 0 : TEXT <br>
+        /// ################################# 1 : VIDEO <br>
+        /// ################################# 2 : PICTURE <br>
+        /// ################################# 3 : DOCUMENT <br>
+        /// ################################# 4 : LINK <br>
+        /// ################################# 5 : LINK_YOUTUBE <br>
+        /// ################################# 6 : GIF <br>
+        /// ################################# 7 : GIF_TENOR <br>
+        /// ################################# 8 : AUDIO <br>
+        /// ################################# 9 : LOCATION <br>
         public var mType: Int {
           get {
             return snapshot["m_type"]! as! Int
@@ -13519,8 +15327,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Message status Enum values : <br>
-        /// ############################## 0 : SENT <br>
-        /// ############################## 1 : SEEN<br>
+        /// ################################# 0 : SENT <br>
+        /// ################################# 1 : SEEN<br>
         public var status: Int? {
           get {
             return snapshot["status"] as? Int
@@ -13541,9 +15349,9 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Unix timestamp
-        public var timestamp: GraphQLID? {
+        public var timestamp: String? {
           get {
-            return snapshot["timestamp"] as? GraphQLID
+            return snapshot["timestamp"] as? String
           }
           set {
             snapshot.updateValue(newValue, forKey: "timestamp")
@@ -13561,7 +15369,6 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// URL preview domain
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlDomain: String? {
           get {
             return snapshot["url_domain"] as? String
@@ -13572,7 +15379,6 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// URL preview text
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlText: String? {
           get {
             return snapshot["url_text"] as? String
@@ -13583,18 +15389,16 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// URL preview thumb
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
-        public var urlThumbUrl: String? {
+        public var thumbUrl: String? {
           get {
-            return snapshot["url_thumb_url"] as? String
+            return snapshot["thumb_url"] as? String
           }
           set {
-            snapshot.updateValue(newValue, forKey: "url_thumb_url")
+            snapshot.updateValue(newValue, forKey: "thumb_url")
           }
         }
 
         /// URL preview Title
-        @available(*, deprecated, message: "Url Preview meta data are generated locally.")
         public var urlTitle: String? {
           get {
             return snapshot["url_title"] as? String
@@ -13696,8 +15500,8 @@ public final class SubscribeByUserIdSubscription: GraphQLSubscription {
         }
 
         /// Action Enum values : <br>
-        /// ############################## 0 : START_TYPING <br>
-        /// ############################## 1 : STOP_TYPING
+        /// ################################# 0 : START_TYPING <br>
+        /// ################################# 1 : STOP_TYPING
         public var action: Int {
           get {
             return snapshot["action"]! as! Int

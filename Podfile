@@ -6,7 +6,6 @@ target 'NetworkingRetrier' do
   use_frameworks!
 
   # Pods for NetworkingRetrier
-
   pod 'AWSAppSync' #'2.10.3'
   pod 'MessageKit'#, :git => 'https://github.com/MessageKit/MessageKit.git', :branch => 'typingIndicatorView'
   pod 'Alamofire'

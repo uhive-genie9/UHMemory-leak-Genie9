@@ -50,14 +50,14 @@ class ConversationListPresenter {
         return conversationsList
     }
     
-    func startNewConversation(with receiverId: Int) {
-        appSyncHelper?.startBiConversation(receiverId: receiverId, senderId: senderId, then: {[weak self] convModel in
-            DBHelper.shared.saveConversation(convModel)
-            convsId = convModel.conversationId ?? 0
-            self?.assembleConversationList()
-            self?.view?.didCreateConversation()
-        })
-    }
+//    func startNewConversation(with receiverId: Int) {
+//        appSyncHelper?.startBiConversation(receiverId: receiverId, senderId: senderId, then: {[weak self] convModel in
+//            DBHelper.shared.saveConversation(convModel)
+//            convsId = convModel.conversationId ?? 0
+//            self?.assembleConversationList()
+//            self?.view?.didCreateConversation()
+//        })
+//    }
     
     func getConversationsData(at indexPath: IndexPath) -> ConversationModel? {
         return conversationsList?[indexPath.row]

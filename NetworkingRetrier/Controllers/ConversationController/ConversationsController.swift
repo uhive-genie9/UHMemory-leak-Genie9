@@ -29,7 +29,7 @@ class ConversationsController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter?.attachView(self)
-        presenter?.assembleConversationList()
+       //presenter?.assembleConversationList()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -38,7 +38,7 @@ class ConversationsController: UIViewController {
     }
     
     @IBAction func newConversationTapped(_ sender: UIBarButtonItem) {
-        presenter?.startNewConversation(with: receiverId)
+      //  presenter?.startNewConversation(with: receiverId)
     }
     
 }
@@ -51,15 +51,11 @@ extension ConversationsController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "\(ConversationCell.self)", for: indexPath) as! Cellable & UITableViewCell
-        cell.configure(presenter?.getConversationsData(at: indexPath))
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ChatViewController") as! ChatViewController
-        vc.conversationsControllerDelegate = self
-        convsId = presenter?.getConversationsData(at: indexPath)?.conversationId ?? 0
-        navigationController?.pushViewController(vc, animated: true)
+      
     }
     
 }

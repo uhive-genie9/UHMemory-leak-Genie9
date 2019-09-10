@@ -1,4 +1,7 @@
 # this is an auto generated file. This will be overwritten
+mutation DeleteConversations($user_id: Int!, $conversations_ids: [Int!]) {
+  deleteConversations(user_id: $user_id, conversations_ids: $conversations_ids)
+}
 mutation AddMessage(
   $conversation_id: Int!
   $local_id: Int!
@@ -8,7 +11,7 @@ mutation AddMessage(
   $url: String
   $url_domain: String
   $url_text: String
-  $url_thumb_url: String
+  $thumb_url: String
   $url_title: String
   $user_id: Int!
 ) {
@@ -21,7 +24,7 @@ mutation AddMessage(
     url: $url
     url_domain: $url_domain
     url_text: $url_text
-    url_thumb_url: $url_thumb_url
+    thumb_url: $thumb_url
     url_title: $url_title
     user_id: $user_id
   ) {
@@ -42,16 +45,23 @@ mutation AddMessage(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -65,7 +75,7 @@ mutation AddMessage(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -93,7 +103,7 @@ mutation AddMessageV2(
   $url: String
   $url_domain: String
   $url_text: String
-  $url_thumb_url: String
+  $thumb_url: String
   $url_title: String
   $user_id: Int!
 ) {
@@ -107,7 +117,7 @@ mutation AddMessageV2(
     url: $url
     url_domain: $url_domain
     url_text: $url_text
-    url_thumb_url: $url_thumb_url
+    thumb_url: $thumb_url
     url_title: $url_title
     user_id: $user_id
   ) {
@@ -128,16 +138,23 @@ mutation AddMessageV2(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -151,7 +168,7 @@ mutation AddMessageV2(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -169,8 +186,8 @@ mutation AddMessageV2(
     }
   }
 }
-mutation AddMessageV3($receiver_id: Int, $message: MessageInput) {
-  addMessage_v3(receiver_id: $receiver_id, message: $message) {
+mutation AddMessageV3($message: MessageInput, $receiver_id: Int) {
+  addMessage_v3(message: $message, receiver_id: $receiver_id) {
     action_type
     conversation {
       conversation_id
@@ -188,16 +205,23 @@ mutation AddMessageV3($receiver_id: Int, $message: MessageInput) {
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -211,7 +235,7 @@ mutation AddMessageV3($receiver_id: Int, $message: MessageInput) {
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -256,16 +280,23 @@ mutation AddUserGroupConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -279,7 +310,7 @@ mutation AddUserGroupConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -325,16 +356,23 @@ mutation LeaveGroupConversation($group_conversation_id: Int!, $user_id: Int!) {
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -348,7 +386,7 @@ mutation LeaveGroupConversation($group_conversation_id: Int!, $user_id: Int!) {
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -385,16 +423,23 @@ mutation NewGroupAdded($group_id: Int!, $receiver_id: Int!) {
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -408,7 +453,7 @@ mutation NewGroupAdded($group_id: Int!, $receiver_id: Int!) {
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -455,16 +500,23 @@ mutation PublishTyping(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -478,7 +530,7 @@ mutation PublishTyping(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -521,16 +573,23 @@ mutation PublishTypingGroupConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -544,7 +603,7 @@ mutation PublishTypingGroupConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -587,16 +646,23 @@ mutation RemoveUserGroupConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -610,7 +676,7 @@ mutation RemoveUserGroupConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -655,16 +721,23 @@ mutation SetSeenConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -678,7 +751,7 @@ mutation SetSeenConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -723,16 +796,23 @@ mutation StartConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -746,7 +826,7 @@ mutation StartConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }
@@ -817,16 +897,23 @@ mutation ToggleAdminGroupConversation(
         url
         url_domain
         url_text
-        url_thumb_url
+        thumb_url
         url_title
         user_id
       }
       peer_user {
+        image_last_changed
+        image_type
         name
         user_id
       }
       timestamp
       unseen_count
+      last_msg_text
+      last_msg_url
+      last_msg_m_type
+      is_blocked
+      peer_is_blocked
     }
     message {
       conv_type
@@ -840,7 +927,7 @@ mutation ToggleAdminGroupConversation(
       url
       url_domain
       url_text
-      url_thumb_url
+      thumb_url
       url_title
       user_id
     }

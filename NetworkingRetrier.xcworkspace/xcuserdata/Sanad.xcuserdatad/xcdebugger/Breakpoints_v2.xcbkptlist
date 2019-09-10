@@ -10,13 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkingRetrier/Helpers/AWSAmplifyHelper.swift"
-            timestampString = "583249408.289989"
+            timestampString = "589794295.8721581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "409"
             endingLineNumber = "409"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "setMessageSeenMutation(receiverId:conversationId:lastMessageSeenId:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -26,13 +26,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkingRetrier/Helpers/AWSAmplifyHelper.swift"
-            timestampString = "583249408.290246"
+            timestampString = "589794295.872228"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "406"
             endingLineNumber = "406"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "setMessageSeenMutation(receiverId:conversationId:lastMessageSeenId:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -42,13 +42,29 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkingRetrier/Helpers/AWSAmplifyHelper.swift"
-            timestampString = "583249408.290298"
+            timestampString = "589794295.8722841"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "411"
             endingLineNumber = "411"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "AWSAmplifyHelper"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NetworkingRetrier/Helpers/AWSAmplifyHelper.swift"
+            timestampString = "589794295.872337"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "doUnauthorized()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

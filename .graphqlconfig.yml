@@ -1,5 +1,5 @@
 projects:
-  UhiveChatTesting:
+  Chat101:
     schemaPath: graphql/schema.json
     includes:
       - graphql/**/*.graphql
@@ -11,4 +11,4 @@ projects:
         generatedFileName: API.swift
         docsFilePath: graphql
         region: us-east-1
-        maxDepth: 5
+        maxDepth: 6
