@@ -117,14 +117,6 @@
 			path = Enums;
 			sourceTree = "<group>";
 		};
-		16127FE22264839F00E9DF74 /* Constants */ = {
-			isa = PBXGroup;
-			children = (
-				16127FE3226483B000E9DF74 /* Contants.swift */,
-			);
-			path = Constants;
-			sourceTree = "<group>";
-		};
 		16127FE722648DFF00E9DF74 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -243,6 +235,7 @@
 			isa = PBXGroup;
 			children = (
 				1663630B23277F94000C9DAB /* awsconfiguration.json */,
+				16127FE3226483B000E9DF74 /* Contants.swift */,
 				BAE1BE9D22EEF0F800F2B6D1 /* UserDefault */,
 				16E5E56F22672681005D0F9E /* Models */,
 				C93F6995224784C1001C14A0 /* Main.storyboard */,
@@ -251,7 +244,6 @@
 				16E5E57422685A8F005D0F9E /* Services */,
 				FC65D779226F49C900BF6664 /* Extensions */,
 				16127FE722648DFF00E9DF74 /* Helpers */,
-				16127FE22264839F00E9DF74 /* Constants */,
 				16127FDF22647F6000E9DF74 /* Enums */,
 				C986A5052250A4F600F1BB0B /* API.swift */,
 				C93F6991224784C1001C14A0 /* AppDelegate.swift */,
